@@ -1,0 +1,15 @@
+{
+  "name": "ride-share",
+  "version": "1.0.0",
+  "description": "driver inventory micro-service for a ride-sharing clone",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/katm201/ride-share.git"
+  },
+  "author": "Katherine Manning",
+  "license": "ISC",
+  "homepage": "https://github.com/katm201/ride-share#readme"
+}
