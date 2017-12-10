@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  service:
+    image: katm201/rideshare
+    build: ./
+    ports:
+      - '80:3030'
+    env_file:
+      - ./.env
+
