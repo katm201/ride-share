@@ -6,7 +6,7 @@ WORKDIR /container/src
 
 COPY . /container/src
 
-RUN npm install
+RUN npm install --production
 
 EXPOSE 3030
 
