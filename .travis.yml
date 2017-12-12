@@ -8,6 +8,6 @@ before_script:
 - npm run build
 script: node ./service/build/server/index.js & npm run test
 after_success: 
-- docker login -u $DOCKER_LOGIN -u $DOCKER_PW
+- docker login -u $DOCKER_LOGIN -p $DOCKER_PW
 - docker-compose build -d 
 - docker push katm201/rideshare:latest
