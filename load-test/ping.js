@@ -1,11 +1,27 @@
 const axios = require('axios');
 
-for (var i = 0; i < 10000; i++) {
-  axios.get('http://ec2-18-217-221-192.us-east-2.compute.amazonaws.com/')
+const url = 'http://ec2-52-14-4-98.us-east-2.compute.amazonaws.com/';
+
+let success = 0;
+let error = 0;
+
+for (var i = 0; i < 100; i++) {
+  const multipleOf5 = i % 5 === 0;
+  axios.get(url)
     .then((response) => {
-      console.log(response.data);
+      success++;
+      if (multipleOf5) {
+        console.log(response.data);
+        console.log('successes ', success)
+      }
     })
     .catch((err) => {
-      console.log(err);
+      error++;
+      if (multipleOf5) {
+        console.log(err.code);
+        console.log('errors', error)
+      }
     });
 }
+
+// console.log(success / (success + error));
