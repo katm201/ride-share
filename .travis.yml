@@ -7,7 +7,8 @@ services:
 before_script:
 - npm run build
 script: node ./service/build/server/index.js & npm run test
-after_success: 
-- docker login -u $DOCKER_LOGIN -p $DOCKER_PW
-- docker-compose build
-- docker push katm201/rideshare:latest
+deploy:
+  provider: script
+  script: docker login -u $DOCKER_LOGIN -p $DOCKER_PW && docker-compose build && docker push katm201/rideshare:latest
+  on:
+    branch: master
