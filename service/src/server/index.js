@@ -9,7 +9,7 @@ const server = express();
 
 server.use('/', router);
 
-const port = process.env.PORT;
+const port = process.env.PORT || 80;
 
 server.listen(port);
 console.log(`Listening on ${port}`);
