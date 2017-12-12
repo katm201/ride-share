@@ -5,10 +5,13 @@ const axios = require('axios');
 
 require('dotenv').config();
 
-const baseUrl = `http://localhost:${process.env.PORT}`;
+const port = process.env.PORT || 80;
+
+const baseUrl = `http://localhost:${port}`;
 
 describe('GET /', () => {
   it('responds with a status code of 200', (done) => {
+    console.log(port);
     axios.get(`${baseUrl}/`)
       .then((response) => {
         expect(response.status).to.equal(200);
