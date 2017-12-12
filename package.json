@@ -7,7 +7,8 @@
     "build:watch": "babel ./service/src -d ./service/build --watch",
     "start": "npm run build && NODE_ENV=production node ./service/build/server/index.js",
     "start:dev": "parallelshell 'npm run build:watch' 'nodemon ./service/build/server/index.js'",
-    "test": "./node_modules/.bin/mocha --exit"
+    "test:dev": "./node_modules/.bin/mocha -R nyan",
+    "test": "./node_modules/.bin/mocha -R list --exit"
   },
   "repository": {
     "type": "git",

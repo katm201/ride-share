@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  server:
+    image: katm201/rideshare:latest
+    build: ./
+    ports:
+      - '80:80'
+
