@@ -9,5 +9,5 @@ before_script:
 script: node ./service/build/server/index.js & npm run test
 after_success: 
 - docker login -u $DOCKER_LOGIN -p $DOCKER_PW
-- docker-compose build -d 
+- docker-compose build
 - docker push katm201/rideshare:latest
