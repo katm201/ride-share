@@ -12,6 +12,12 @@ const createLocation = () => {
   return `POINT(${lat} ${log})`;
 };
 
+const createTime = (start = 1483257600000) => {
+  const addTime = Math.floor(Math.random() * 7772400000);
+  return new Date(start + addTime);
+  // return [new Date(start + addTime).toISOString(), new Date()];
+};
+
 const drivers = [
   {
     name: 'Jake',
@@ -28,10 +34,13 @@ const drivers = [
 ];
 
 const savedDrivers = drivers.map((driver) => {
+  const createdAt = createTime();
+  const updatedAt = createTime(createdAt.getTime());
+
   const info = {
     name: driver.name,
-    joined: new Date().toISOString(),
-    last_checkin: new Date().toISOString(),
+    joined: createdAt.toISOString(),
+    last_checkin: updatedAt.toISOString(),
     available: driver.available,
     booked: driver.booked,
     location: st.geomFromText(driver.location, 4326),
