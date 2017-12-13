@@ -8,7 +8,7 @@ pgKnex.schema.createTableIfNotExists('drivers', (table) => {
   table.timestamps();
   table.boolean('booked');
   table.boolean('available');
-  // table.string('location');
+  table.string('location');
 }).then(() => {
   console.log('drivers table created');
   return pgKnex.destroy();
