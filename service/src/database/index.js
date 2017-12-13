@@ -8,6 +8,12 @@ dotenv.config();
 const pgKnex = knex({
   client: 'pg',
   connection: process.env.PG_CONNECTION_STRING,
+  pool: {
+    min: 0,
+    max: 10,
+    refreshIdle: false,
+    reapIntervalMillis: 0,
+  },
 });
 
 const st = knexPostgis(pgKnex);

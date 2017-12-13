@@ -34,12 +34,16 @@ const createDrivers = (count) => {
   return drivers;
 };
 
-const driversInfo = createDrivers(1000000);
+const start = new Date();
+console.log('start: ', start.toISOString());
+const driversInfo = createDrivers(10000);
 
-pgKnex.batchInsert('drivers', driversInfo)
+pgKnex.batchInsert('drivers', driversInfo, 1000)
   .returning('id')
   .then((ids) => {
     console.log(`${ids.length} drivers saved`);
+    const stop = new Date();
+    console.log('stop: ', stop.toISOString());
     pgKnex.destroy();
   }).catch((err) => {
     console.log(err);
