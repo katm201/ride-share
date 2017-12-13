@@ -15,33 +15,24 @@ const { createLocation, createTime } = helpers;
 
 const drivers = [];
 
-for (let i = 0; i < 1000; i++) {
-  drivers.push({
-    firstName: firstName(),
-    lastName: lastName(),
-    available: true,
-    booked: false,
-    location: createLocation(),
-  });
-}
-
-const savedDrivers = drivers.map((driver) => {
+for (let i = 0; i < 100; i++) {
   const createdAt = createTime();
   const updatedAt = createTime(createdAt.getTime());
+  const location = createLocation();
 
   const info = {
-    first_name: driver.firstName,
-    last_name: driver.lastName,
+    first_name: firstName(),
+    last_name: lastName(),
     joined: createdAt.toISOString(),
     last_checkin: updatedAt.toISOString(),
-    available: driver.available,
-    booked: driver.booked,
-    location: st.geomFromText(driver.location, 4326),
+    available: true,
+    booked: false,
+    location: st.geomFromText(location, 4326),
   };
-  return Driver.forge(info).save();
-});
+  drivers.push(Driver.forge(info).save());
+}
 
-Promise.all(savedDrivers).then(() => {
+Promise.all(drivers).then(() => {
   console.log('drivers saved');
   pgKnex.destroy();
 }).catch((err) => {
