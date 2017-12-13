@@ -4,7 +4,8 @@ const { pgKnex } = db;
 
 pgKnex.schema.createTableIfNotExists('drivers', (table) => {
   table.increments();
-  table.string('name');
+  table.string('last_name');
+  table.string('first_name');
   table.timestamp('joined');
   table.timestamp('last_checkin');
   table.boolean('booked');
