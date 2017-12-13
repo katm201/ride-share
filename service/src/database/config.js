@@ -7,8 +7,13 @@ const Driver = pgBookshelf.Model.extend({
   location: ['geometry'],
 });
 
+const Drivers = pgBookshelf.Collection.extend({
+  model: Driver,
+});
+
 const tables = {
   Driver,
+  Drivers,
 };
 
 export default tables;

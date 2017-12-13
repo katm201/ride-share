@@ -2,13 +2,11 @@
 
 import faker from 'faker';
 
-import tables from '../config';
 import db from '../index';
 import helpers from './helpers';
 
 const { firstName, lastName } = faker.name;
 
-const { Driver } = tables;
 const { pgKnex, st } = db;
 
 const { createLocation, createTime } = helpers;
@@ -30,18 +28,21 @@ const createDrivers = (count) => {
       booked: false,
       location: st.geomFromText(location, 4326),
     };
-    drivers.push(Driver.forge(info).save());
+    drivers.push(info);
   }
 
   return drivers;
 };
 
-const drivers = createDrivers(100);
+const driversInfo = createDrivers(1000000);
 
-Promise.all(drivers).then(() => {
-  console.log('drivers saved');
-  pgKnex.destroy();
-}).catch((err) => {
-  console.log(err);
-  pgKnex.destroy();
-});
+pgKnex.batchInsert('drivers', driversInfo)
+  .returning('id')
+  .then((ids) => {
+    console.log(`${ids.length} drivers saved`);
+    pgKnex.destroy();
+  }).catch((err) => {
+    console.log(err);
+    pgKnex.destroy();
+  });
+
