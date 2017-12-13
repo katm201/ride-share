@@ -28,7 +28,7 @@ describe('drivers table', () => {
     })
     .catch((err) => {
       console.log(err);
-    })
+    });
   });
 });
 
