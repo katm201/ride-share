@@ -1,22 +1,11 @@
 import tables from '../config';
 import db from '../index';
+import helpers from './helpers';
 
 const { Driver } = tables;
 const { pgKnex, st } = db;
 
-const createLocation = () => {
-  const minLat = -122.75;
-  const minLog = 36.8;
-  const lat = (minLat + Math.random()).toPrecision(4);
-  const log = (minLog + Math.random()).toPrecision(4);
-  return `POINT(${lat} ${log})`;
-};
-
-const createTime = (start = 1483257600000) => {
-  const addTime = Math.floor(Math.random() * 7772400000);
-  return new Date(start + addTime);
-  // return [new Date(start + addTime).toISOString(), new Date()];
-};
+const { createLocation, createTime } = helpers;
 
 const drivers = [
   {
