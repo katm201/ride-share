@@ -5,8 +5,8 @@ const { Driver } = tables;
 const { pgKnex } = db;
 
 const drivers = [
-  { name: 'Jake' },
-  { name: 'Joe' },
+  { name: 'Jake', available: true, booked: false },
+  { name: 'Joe', available: true, booked: false },
 ];
 
 const savedDrivers = drivers.map(driver => (Driver.forge(driver).save()));
