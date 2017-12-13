@@ -4,8 +4,11 @@ node_js:
 sudo: required
 services:
 - docker
+- postgresql
 before_script:
 - npm run build
+- psql -c 'create database inventory;' -U postgres
+- npm run db:setup
 script: node ./service/build/server/index.js & npm run test
 deploy:
   provider: script
