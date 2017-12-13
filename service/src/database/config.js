@@ -7,7 +7,7 @@ const Driver = pgBookshelf.Model.extend({
   location: ['geometry'],
 });
 
-Driver.prototype.hasTimestamps = true;
+// Driver.prototype.hasTimestamps = true;
 
 const tables = {
   Driver,
