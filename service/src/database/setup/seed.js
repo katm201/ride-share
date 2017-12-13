@@ -13,24 +13,30 @@ const { pgKnex, st } = db;
 
 const { createLocation, createTime } = helpers;
 
-const drivers = [];
+const createDrivers = (count) => {
+  const drivers = [];
 
-for (let i = 0; i < 100; i++) {
-  const createdAt = createTime();
-  const updatedAt = createTime(createdAt.getTime());
-  const location = createLocation();
+  for (let i = 0; i < count; i++) {
+    const createdAt = createTime();
+    const updatedAt = createTime(createdAt.getTime());
+    const location = createLocation();
 
-  const info = {
-    first_name: firstName(),
-    last_name: lastName(),
-    joined: createdAt.toISOString(),
-    last_checkin: updatedAt.toISOString(),
-    available: true,
-    booked: false,
-    location: st.geomFromText(location, 4326),
-  };
-  drivers.push(Driver.forge(info).save());
-}
+    const info = {
+      first_name: firstName(),
+      last_name: lastName(),
+      joined: createdAt.toISOString(),
+      last_checkin: updatedAt.toISOString(),
+      available: true,
+      booked: false,
+      location: st.geomFromText(location, 4326),
+    };
+    drivers.push(Driver.forge(info).save());
+  }
+
+  return drivers;
+};
+
+const drivers = createDrivers(100);
 
 Promise.all(drivers).then(() => {
   console.log('drivers saved');
