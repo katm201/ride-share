@@ -11,6 +11,7 @@ pgKnex.schema.createTableIfNotExists('drivers', (table) => {
   table.boolean('booked');
   table.boolean('available');
   table.string('location');
+  table.index('location');
 })
   .then(() => {
     console.log('drivers table created');
