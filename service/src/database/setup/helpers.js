@@ -63,7 +63,7 @@ const createRequests = (end) => {
 const createJoins = (start, end, driversCount) => {
   const joins = [];
 
-  for (let i = start; i <= end; i++) {
+  for (let i = start + 1; i <= end; i++) {
     for (let j = 0; j < 5; j++) {
       const driver = Math.floor((Math.random() * driversCount) + 1);
 

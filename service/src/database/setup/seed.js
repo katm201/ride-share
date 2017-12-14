@@ -8,13 +8,20 @@ let { pgKnex } = db;
 const { createDrivers, createRequests, createJoins } = helpers;
 
 const seed = (section) => {
-  const startCount = section * 1000000;
-  const maxCount = startCount + 1000000;
+  const batchSize = 1000000;
+  const startCount = section * batchSize;
+  const maxCount = startCount + batchSize;
 
-  const driversCount = maxCount / 20;
-  const requestsCount = maxCount / 5;
+  const driversCount = batchSize / 20;
+  const requestsCount = batchSize / 5;
+
+  const totalDrivers = (section + 1) * driversCount;
+  const totalRequests = (section + 1) * requestsCount;
 
   const drivers = createDrivers(driversCount);
+
+  const start = new Date();
+  console.log(start.toISOString());
 
   console.log(`starting insertion, section ${section}`);
 
@@ -26,7 +33,7 @@ const seed = (section) => {
     })
     .then(() => {
       console.log(`${requestsCount} requests saved`);
-      const joinsInfo = createJoins(startCount + 1, requestsCount, driversCount);
+      const joinsInfo = createJoins(totalRequests - requestsCount, totalRequests, totalDrivers);
       return pgKnex.batchInsert('requests_drivers', joinsInfo, 1000);
     })
     .then(() => {
@@ -35,6 +42,8 @@ const seed = (section) => {
     })
     .then(() => {
       console.log(`connection closed for section ${section}`);
+      const stop = new Date();
+      console.log(stop.toISOString());
     })
     .catch((err) => {
       console.log(err);
@@ -110,3 +119,44 @@ seed(0)
     console.log(err);
   });
 
+// const seed = (section) => {
+//   const startCount = 0;
+//   const maxCount = section;
+
+//   const driversCount = maxCount / 20;
+//   const requestsCount = maxCount / 5;
+
+//   const drivers = createDrivers(driversCount);
+
+//   const start = new Date();
+//   console.log(start.toISOString());
+
+//   console.log(`starting insertion, section ${section}`);
+
+//   return pgKnex.batchInsert('drivers', drivers, 1000)
+//     .then(() => {
+//       console.log(`${driversCount} drivers saved`);
+//       const requests = createRequests(requestsCount);
+//       return pgKnex.batchInsert('requests', requests, 1000);
+//     })
+//     .then(() => {
+//       console.log(`${requestsCount} requests saved`);
+//       const joinsInfo = createJoins(startCount + 1, requestsCount, driversCount);
+//       return pgKnex.batchInsert('requests_drivers', joinsInfo, 1000);
+//     })
+//     .then(() => {
+//       console.log(`${maxCount} joins saved`);
+//       return pgKnex.destroy();
+//     })
+//     .then(() => {
+//       console.log(`connection closed for section ${section}`);
+//       const stop = new Date();
+//       console.log(stop.toISOString());
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       return pgKnex.destroy();
+//     });
+// };
+
+// seed(10000000
