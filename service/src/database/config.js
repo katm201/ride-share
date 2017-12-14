@@ -11,9 +11,15 @@ const Drivers = pgBookshelf.Collection.extend({
   model: Driver,
 });
 
+const Request = pgBookshelf.Model.extend({
+  tableName: 'requests',
+  start_loc: ['geometry'],
+});
+
 const tables = {
   Driver,
   Drivers,
+  Request,
 };
 
 export default tables;

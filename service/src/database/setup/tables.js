@@ -15,5 +15,15 @@ pgKnex.schema.createTableIfNotExists('drivers', (table) => {
   console.log('drivers table created');
   return pgKnex.destroy();
 }).then(() => {
-  console.log('table creation completed');
+  console.log('drivers table creation completed');
+});
+
+pgKnex.schema.createTableIfNotExists('requests', (table) => {
+  table.increments();
+  table.string('start_loc');
+}).then(() => {
+  console.log('requests table created');
+  return pgKnex.destroy();
+}).then(() => {
+  console.log('requests table creation completed');
 });
