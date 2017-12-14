@@ -37,7 +37,8 @@ const seed = (section) => {
       return pgKnex.batchInsert('requests_drivers', joinsInfo, 1000);
     })
     .then(() => {
-      console.log(`${maxCount} joins saved`);
+      console.log(`${batchSize} joins saved`);
+      console.log(`${maxCount} total joins saved`);
       return pgKnex.destroy();
     })
     .then(() => {
