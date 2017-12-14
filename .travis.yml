@@ -9,7 +9,7 @@ services:
 before_script:
 - npm run build
 - psql -c 'create database inventory;' -U postgres
-- psql -U postgres -c "create extension postgis"
+- psql -c 'CREATE EXTENSION postgis;' -d inventory
 - npm run build:db
 script: node ./service/build/server/index.js & npm run test
 deploy:
