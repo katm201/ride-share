@@ -4,13 +4,14 @@ node_js:
 sudo: required
 services:
 - docker
+addons:
+  postgresql: 9.6
+  apt:
+    packages:
+    - postgresql-9.6-postgis-2.3
 sudo: true
 before_script:
 - npm run build
-- sudo apt-get update
-- sudo apt-get autoremove postgis*
-- sudo apt-get autoremove postgresql*
-- sudo apt-get install postgresql-9.3-postgis-2.1
 - psql -c 'create database inventory;' -U postgres
 - psql -U postgres -c 'CREATE EXTENSION postgis;' -d inventory
 - npm run build:db
