@@ -5,10 +5,12 @@ sudo: required
 services:
 - docker
 - postgresql
+- postgis
 before_script:
 - npm run build
 - psql -c 'create database inventory;' -U postgres
-- npm run setup:db
+- psql -c 'CREATE EXTENSION postgis;' -U postgres -d inventory
+- npm run build:db
 script: node ./service/build/server/index.js & npm run test
 deploy:
   provider: script
