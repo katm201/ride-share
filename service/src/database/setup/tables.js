@@ -25,5 +25,5 @@ pgKnex.schema.createTableIfNotExists('requests', (table) => {
   console.log('requests table created');
   return pgKnex.destroy();
 }).then(() => {
-  console.log('requests table creation completed');
+  console.log('requeststable creation completed');
 });
