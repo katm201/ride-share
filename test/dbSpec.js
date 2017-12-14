@@ -1,17 +1,18 @@
 /* eslint-disable */
-
 const expect = require('chai').expect;
 
 require('dotenv').config();
 
 const db = require('../service/build/database/index.js');
 const tables = require('../service/build/database/config.js');
+const helpers = require('../service/build/database/setup/helpers.js');
 
 const { pgKnex } = db.default;
 const { Driver } = tables.default;
+const { createDrivers } = helpers.default;
 
 describe('drivers table', () => {
-  const tester = { name: 'Johnny Tester' };
+  const tester = createDrivers(1)[0];
 
   afterEach(() => {
     pgKnex.destroy();
