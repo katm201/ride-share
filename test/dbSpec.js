@@ -11,7 +11,7 @@ const { pgKnex, st } = db.default;
 const { Driver, Request } = tables.default;
 const { createDrivers, createRequests } = helpers.default;
 
-describe('drivers table', () => {
+describe('Inventory database', () => {
   const driverTester = createDrivers(1)[0];
   const requestTester = createRequests(1)[0];
 
