@@ -4,6 +4,7 @@ import faker from 'faker';
 import db from '../index';
 
 const { firstName, lastName } = faker.name;
+const { uuid } = faker.random;
 
 const { st } = db;
 
@@ -51,6 +52,7 @@ const createRequests = (end) => {
     const location = createLocation();
 
     const info = {
+      ride_id: uuid(),
       start_loc: st.geomFromText(location, 4326),
     };
 
