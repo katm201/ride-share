@@ -19,7 +19,17 @@ const updateDrivers = (drivers) => {
 
 const addRequest = (rideInfo) => {
   const location = st.geomFromText(rideInfo.start_loc, 4326);
-  return pgKnex('requests').insert({ ride_id: rideInfo.ride_id, start_loc: location });
+  return pgKnex('requests').insert({ ride_id: rideInfo.ride_id, start_loc: location }).returning('id');
+};
+
+const addJoins = (dispatchInfo) => {
+  const joins = dispatchInfo.drivers.map(driver => (
+    {
+      request_id: dispatchInfo.request_id,
+      driver_id: driver.driver_id,
+    }
+  ));
+  return pgKnex.batchInsert('requests_drivers', joins, 5);
 };
 
 const sendDrivers = (options) => {
@@ -28,8 +38,8 @@ const sendDrivers = (options) => {
 };
 
 const processQueue = {
-  rides: () => {
-    return service.queue.process('ride', 1, (job, done) => {
+  rides: () => (
+    service.queue.process('ride', 1, (job, done) => {
       const dispatchInfo = {
         ride_id: job.data.ride_id,
         start_loc: job.data.start_loc,
@@ -44,14 +54,15 @@ const processQueue = {
         })
         .then(() => (sendDrivers(dispatchInfo)))
         .then(() => (addRequest(job.data)))
+        .then(ids => (addJoins({ request_id: ids[0], drivers: dispatchInfo.drivers })))
         .then(() => {
           done();
         })
         .catch((err) => {
           console.log(err);
         });
-    });
-  },
+    })
+  ),
 };
 
 const checkQueue = () => {
