@@ -4,6 +4,7 @@ node_js:
 sudo: required
 services:
 - docker
+- redis
 addons:
   postgresql: 9.6
   apt:
@@ -14,7 +15,7 @@ before_script:
 - npm run build
 - psql -c 'create database inventory;' -U postgres
 - psql -U postgres -c 'CREATE EXTENSION postgis;' -d inventory
-- npm run build:db
+- npm run db:build
 script: node ./service/build/server/index.js & npm run test
 deploy:
   provider: script

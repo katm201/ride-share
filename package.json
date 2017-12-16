@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "driver inventory micro-service for a ride-sharing clone",
   "scripts": {
-    "build:db": "node ./service/build/database/setup/tables.js",
-    "seed:db": "node ./service/build/database/setup/seed.js",
-    "setup:db": "npm run build:db && npm run seed:db",
+    "db:build": "node ./service/build/database/setup/tables.js",
+    "db:seed": "node ./service/build/database/setup/seed.js",
+    "db:setup": "npm run build:db && npm run seed:db",
+    "req:new-ride": "node ./load-test/new-ride.js",
     "build": "babel ./service/src -d ./service/build",
     "build:watch": "babel ./service/src -d ./service/build --watch",
     "start": "npm run build && NODE_ENV=production node ./service/build/server/index.js",
@@ -35,6 +36,7 @@
     "babel-core": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-1": "^6.24.1",
+    "body-parser": "^1.18.2",
     "bookshelf": "^0.12.0",
     "bookshelf-postgis": "^0.2.2",
     "dotenv": "^4.0.0",
@@ -42,6 +44,7 @@
     "faker": "^4.1.0",
     "knex": "^0.14.2",
     "knex-postgis": "^0.5.0",
+    "kue": "^0.11.6",
     "pg": "^7.4.0",
     "prompt": "^1.0.0"
   }
