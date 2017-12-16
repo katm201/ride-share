@@ -34,6 +34,7 @@ const processQueue = {
           drivers.forEach((driver) => {
             dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
           });
+          console.log(dispatchInfo);
           return updateDrivers(drivers);
         })
         .then(() => (sendDrivers(dispatchInfo)))

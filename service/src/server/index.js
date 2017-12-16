@@ -21,7 +21,7 @@ server.use('/', router);
 
 const { checkQueue } = helpers;
 
-setInterval(() => { checkQueue(); }, 1000);
+setInterval(() => { checkQueue(); }, 10);
 
 const port = process.env.PORT || 80;
 
