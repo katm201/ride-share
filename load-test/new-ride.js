@@ -8,8 +8,8 @@ const url = 'http://localhost:3333/new_ride';
 const createLocation = () => {
   const minLog = -122.75;
   const minLat = 36.8;
-  const lat = (minLat + Math.random()).toPrecision(4);
-  const log = (minLog + Math.random()).toPrecision(4);
+  const lat = (minLat + Math.random()).toPrecision(8);
+  const log = (minLog + Math.random()).toPrecision(9);
   return `POINT(${log} ${lat})`;
 };
 

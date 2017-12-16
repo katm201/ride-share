@@ -1,10 +1,15 @@
+import axios from 'axios';
+import dotenv from 'dotenv';
+
 import db from '../../database/index';
 import service from '../index';
 
-const { pgKnex } = db;
+dotenv.config();
+
+const { pgKnex, st } = db;
 
 const getNearestDrivers = job => (
-  pgKnex('drivers').select('*').orderByRaw(`ST_Distance(location, ST_GeometryFromText('${job.start_loc}', 4326)) DESC LIMIT 5`).where({ booked: false, available: true })
+  pgKnex('drivers').select('id', st.asText('location')).orderByRaw(`ST_Distance(location, ST_GeometryFromText('${job.start_loc}', 4326)) DESC LIMIT 5`).where({ booked: false, available: true })
 );
 
 const updateDrivers = (drivers) => {
@@ -12,20 +17,32 @@ const updateDrivers = (drivers) => {
   return Promise.all(driverUpdates);
 };
 
+const sendDrivers = options => (axios.post(`${process.env.DISPATCH_URL}/dispatch`, options));
+
 const processQueue = {
-  rides: () => (
-    service.queue.process('ride', 1, (job, done) => {
+  rides: () => {
+    const dispatchInfo = {};
+    dispatchInfo.drivers = [];
+    return service.queue.process('ride', 1, (job, done) => {
+      dispatchInfo.ride_id = job.data.ride_id;
+      dispatchInfo.start_loc = job.data.start_loc;
       getNearestDrivers(job.data)
-        .then(drivers => (updateDrivers(drivers)))
-        .then((response) => {
-          console.log(response);
+        .then((drivers) => {
+          drivers.forEach((driver) => {
+            dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
+          });
+          console.log(dispatchInfo);
+          return updateDrivers(drivers);
+        })
+        .then(() => (sendDrivers(dispatchInfo)))
+        .then(() => {
           done();
         })
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
         });
     })
-  ),
+  },
 };
 
 const checkQueue = () => {
