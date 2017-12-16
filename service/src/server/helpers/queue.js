@@ -17,8 +17,9 @@ const updateDrivers = (drivers) => {
   return Promise.all(driverUpdates);
 };
 
-const createRequest = () => {
-  // 
+const addRequest = (rideInfo) => {
+  const location = st.geomFromText(rideInfo.start_loc, 4326);
+  return pgKnex('requests').insert({ ride_id: rideInfo.ride_id, start_loc: location });
 };
 
 const sendDrivers = (options) => {
@@ -28,20 +29,21 @@ const sendDrivers = (options) => {
 
 const processQueue = {
   rides: () => {
-    const dispatchInfo = {};
-    dispatchInfo.drivers = [];
     return service.queue.process('ride', 1, (job, done) => {
-      dispatchInfo.ride_id = job.data.ride_id;
-      dispatchInfo.start_loc = job.data.start_loc;
+      const dispatchInfo = {
+        ride_id: job.data.ride_id,
+        start_loc: job.data.start_loc,
+        drivers: [],
+      };
       getNearestDrivers(job.data)
         .then((drivers) => {
           drivers.forEach((driver) => {
             dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
           });
-          console.log(dispatchInfo);
           return updateDrivers(drivers);
         })
         .then(() => (sendDrivers(dispatchInfo)))
+        .then(() => (addRequest(job.data)))
         .then(() => {
           done();
         })
