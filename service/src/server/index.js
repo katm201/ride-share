@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import kue from 'kue';
 import dotenv from 'dotenv';
 import events from 'events';
+import redis from 'redis';
 
 import router from './routes';
 import helpers from './helpers/queue';
