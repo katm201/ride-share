@@ -1,8 +1,10 @@
 import { Router } from 'express';
 
-import { addReqToQueue } from './middleware/queue';
+import middleware from './middleware/queue';
 
 const router = Router();
+
+const { addReqToQueue } = middleware;
 
 router.get('/', (request, response) => {
   response.status(200).end('Hello Katherine!');
