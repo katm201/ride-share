@@ -16,24 +16,19 @@ const createLocation = () => {
 const createRideRequest = () => ({ start_loc: createLocation(), ride_id: uuid() });
 
 const sendNewRides = (count) => {
+  if (count < 1) {
+    return;
+  } else {
+    const request = createRideRequest();
 
-  const send = (countLeft) => {
-    if (countLeft < 1) {
-      return;
-    } else {
-      const request = createRideRequest();
-
-      axios.post(url, request)
-        .then((response) => {
-          send(countLeft - 1);
-        })
-        .catch((err) => {
-          send(countLeft - 1);
-        });
-    }
-  };
-
-  send(count);
+    axios.post(url, request)
+      .then((response) => {
+        sendNewRides(count - 1);
+      })
+      .catch((err) => {
+        sendNewRides(count - 1);
+      });
+  }
 }
 
 sendNewRides(2);
