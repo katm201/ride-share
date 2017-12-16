@@ -17,6 +17,7 @@ pgKnex.schema.createTableIfNotExists('drivers', (table) => {
     console.log('drivers table created');
     return pgKnex.schema.createTableIfNotExists('requests', (table) => {
       table.increments().primary();
+      table.string('ride_id').unique();
       table.string('start_loc');
     });
   })

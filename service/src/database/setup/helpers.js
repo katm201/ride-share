@@ -4,14 +4,15 @@ import faker from 'faker';
 import db from '../index';
 
 const { firstName, lastName } = faker.name;
+const { uuid } = faker.random;
 
 const { st } = db;
 
 const createLocation = () => {
   const minLog = -122.75;
   const minLat = 36.8;
-  const lat = (minLat + Math.random()).toPrecision(4);
-  const log = (minLog + Math.random()).toPrecision(4);
+  const lat = (minLat + Math.random()).toPrecision(8);
+  const log = (minLog + Math.random()).toPrecision(9);
   return `POINT(${log} ${lat})`;
 };
 
@@ -51,6 +52,7 @@ const createRequests = (end) => {
     const location = createLocation();
 
     const info = {
+      ride_id: uuid(),
       start_loc: st.geomFromText(location, 4326),
     };
 
