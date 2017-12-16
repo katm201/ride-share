@@ -9,3 +9,5 @@ build/
 
 # node modules
 node_modules/
+
+dump.rdb

@@ -1,7 +1,7 @@
 import service from '../index';
 
 const checkQueue = () => {
-  service.queue.active((err, ids) => {
+  service.queue.inactive((err, ids) => {
     if (err) { console.log(err); }
     console.log(ids);
   });
