@@ -13,6 +13,7 @@ dotenv.config();
 
 const server = express();
 
+kue.redis.createClient = () => (redis.createClient(process.env.REDIS_CONNECTION_STRING));
 const queue = kue.createQueue();
 
 server.use(bodyParser.json());
