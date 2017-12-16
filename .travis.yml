@@ -4,6 +4,7 @@ node_js:
 sudo: required
 services:
 - docker
+- redis
 addons:
   postgresql: 9.6
   apt:
