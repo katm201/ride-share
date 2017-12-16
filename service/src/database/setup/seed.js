@@ -1,10 +1,9 @@
-import knex from 'knex';
 import prompt from 'prompt';
 
 import db from '../index';
 import helpers from './helpers';
 
-let { pgKnex } = db;
+const { pgKnex } = db;
 
 const { createDrivers, createRequests, createJoins } = helpers;
 
@@ -47,7 +46,7 @@ const seed = (totalSections, section = 0) => {
         console.log(err);
       });
   } else {
-    return pgKnex.destroy()
+    return pgKnex.destroy();
   }
 };
 
