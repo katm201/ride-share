@@ -37,84 +37,49 @@ const seed = (section) => {
       return pgKnex.batchInsert('requests_drivers', joinsInfo, 1000);
     })
     .then(() => {
-      console.log(`${batchSize} joins saved`);
-      console.log(`${maxCount} total joins saved`);
-      return pgKnex.destroy();
-    })
-    .then(() => {
-      console.log(`connection closed for section ${section}`);
-      const stop = new Date();
-      console.log(stop.toISOString());
+        console.log(`${batchSize} joins saved`);
+        console.log(`${maxCount} total joins saved`);
+        const stop = new Date();
+        console.log(`completed section ${section} at ${stop.toISOString()}`);
     })
     .catch((err) => {
       console.log(err);
-      return pgKnex.destroy();
     });
 };
 
 seed(0)
   .then(() => {
-    pgKnex = knex({
-      client: 'pg',
-      connection: process.env.PG_CONNECTION_STRING,
-    });
     return seed(1);
   })
   .then(() => {
-    pgKnex = knex({
-      client: 'pg',
-      connection: process.env.PG_CONNECTION_STRING,
-    });
     return seed(2);
   })
   .then(() => {
-    pgKnex = knex({
-      client: 'pg',
-      connection: process.env.PG_CONNECTION_STRING,
-    });
     return seed(3);
   })
   .then(() => {
-    pgKnex = knex({
-      client: 'pg',
-      connection: process.env.PG_CONNECTION_STRING,
-    });
     return seed(4);
   })
   .then(() => {
-    pgKnex = knex({
-      client: 'pg',
-      connection: process.env.PG_CONNECTION_STRING,
-    });
     return seed(5);
   })
   .then(() => {
-    pgKnex = knex({
-      client: 'pg',
-      connection: process.env.PG_CONNECTION_STRING,
-    });
     return seed(6);
   })
   .then(() => {
-    pgKnex = knex({
-      client: 'pg',
-      connection: process.env.PG_CONNECTION_STRING,
-    });
     return seed(7);
   })
   .then(() => {
-    pgKnex = knex({
-      client: 'pg',
-      connection: process.env.PG_CONNECTION_STRING,
-    });
     return seed(8);
   })
   .then(() => {
-    pgKnex = knex({
-      client: 'pg',
-      connection: process.env.PG_CONNECTION_STRING,
-    });
     return seed(9);
+  })
+  .then(() => {
+    return pgKnex.destroy();
+  })
+  .then(() => {
+    console.log('database seeding successful');
   })
   .catch((err) => {
     console.log(err);
