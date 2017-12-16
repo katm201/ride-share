@@ -17,7 +17,10 @@ const updateDrivers = (drivers) => {
   return Promise.all(driverUpdates);
 };
 
-const sendDrivers = options => (axios.post(`${process.env.DISPATCH_URL}/dispatch`, options));
+const sendDrivers = (options) => {
+  if (process.env.IS_DEV_ENV) { return; }
+  return axios.post(`${process.env.DISPATCH_URL}/dispatch`, options);
+};
 
 const processQueue = {
   rides: () => {
@@ -31,7 +34,6 @@ const processQueue = {
           drivers.forEach((driver) => {
             dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
           });
-          console.log(dispatchInfo);
           return updateDrivers(drivers);
         })
         .then(() => (sendDrivers(dispatchInfo)))
@@ -39,9 +41,9 @@ const processQueue = {
           done();
         })
         .catch((err) => {
-          // console.log(err);
+          console.log(err);
         });
-    })
+    });
   },
 };
 
