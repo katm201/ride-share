@@ -47,7 +47,7 @@ const seed = (totalSections, section = 0) => {
         console.log(err);
       });
   } else {
-    return true;
+    return pgKnex.destroy()
   }
 };
 
@@ -55,10 +55,5 @@ prompt.start();
 
 prompt.get(['totalSections'], (err, result) => {
   console.log(`Input recieved: batching seeding into ${result.totalSections} total sections`);
-  seed(result.totalSections, 0)
-    .then((complete) => {
-      console.log(`completed? ${complete}`)
-      pgKnex.destroy();
-    })
-    .catch((err) => { console.log(err) });
+  seed(result.totalSections, 0);
 });
