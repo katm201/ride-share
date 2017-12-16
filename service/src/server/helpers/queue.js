@@ -17,6 +17,10 @@ const updateDrivers = (drivers) => {
   return Promise.all(driverUpdates);
 };
 
+const createRequest = () => {
+  // 
+};
+
 const sendDrivers = (options) => {
   if (process.env.IS_DEV_ENV) { return; }
   return axios.post(`${process.env.DISPATCH_URL}/dispatch`, options);

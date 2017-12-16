@@ -11,8 +11,6 @@ router.get('/', (request, response) => {
 });
 
 router.post('/new_ride', addReqToQueue, (request, response) => {
-  // console.log('new request on /new_ride');
-  // console.log(request.body);
   response.status(201).end();
 });
 
