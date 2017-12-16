@@ -14,8 +14,14 @@ dotenv.config();
 
 const server = express();
 
-kue.redis.createClient = () => (redis.createClient(process.env.REDIS_CONNECTION_STRING));
-const queue = kue.createQueue();
+const queue = kue.createQueue({
+  redis: {
+    port: process.env.KUE_REDIS_PORT,
+    host: process.env.KUE_REDIS_HOST,
+  },
+});
+
+console.log(queue._options);
 
 server.use(bodyParser.json());
 
