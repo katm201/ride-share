@@ -3,7 +3,6 @@ import bodyParser from 'body-parser';
 import kue from 'kue';
 import dotenv from 'dotenv';
 import events from 'events';
-import redis from 'redis';
 
 import router from './routes';
 import helpers from './helpers/queue';
@@ -11,6 +10,8 @@ import helpers from './helpers/queue';
 events.EventEmitter.prototype._maxListeners = 0;
 
 dotenv.config();
+
+import newrelic from 'newrelic';
 
 const server = express();
 
@@ -20,8 +21,6 @@ const queue = kue.createQueue({
     host: process.env.KUE_REDIS_HOST,
   },
 });
-
-console.log(queue._options);
 
 server.use(bodyParser.json());
 
