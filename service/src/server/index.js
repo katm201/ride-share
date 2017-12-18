@@ -1,17 +1,19 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import kue from 'kue';
 import dotenv from 'dotenv';
-import events from 'events';
-
-import router from './routes';
-import helpers from './helpers/queue';
-
-events.EventEmitter.prototype._maxListeners = 0;
-
 dotenv.config();
 
 import newrelic from 'newrelic';
+
+import express from 'express';
+import bodyParser from 'body-parser';
+import kue from 'kue';
+import events from 'events';
+import pg from 'pg';
+
+import router from './routes';
+import helpers from './helpers/queue';
+import db from '../database/index';
+
+events.EventEmitter.prototype._maxListeners = 0;
 
 const server = express();
 
@@ -28,7 +30,7 @@ server.use('/', router);
 
 const { checkQueue } = helpers;
 
-setInterval(() => { checkQueue(); }, 10);
+setInterval(() => { checkQueue(); }, 50);
 
 const port = process.env.PORT || 80;
 
