@@ -31,4 +31,4 @@ const sendNewRides = (count) => {
   }
 }
 
-sendNewRides(1);
+sendNewRides(10);
