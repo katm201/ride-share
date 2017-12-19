@@ -8,6 +8,7 @@
     "db:setup": "npm run build:db && npm run seed:db",
     "req:new-ride": "node ./load-test/new-ride.js",
     "req:ping": "node ./load-test/ping.js",
+    "req:new-driver": "node ./load-test/new-driver.js",
     "build": "babel ./service/src -d ./service/build",
     "build:watch": "babel ./service/src -d ./service/build --watch",
     "start": "npm run build && NODE_ENV=production node ./service/build/server/index.js",
@@ -32,6 +33,7 @@
     "parallelshell": "^3.0.2"
   },
   "dependencies": {
+    "aws-sdk": "^2.171.0",
     "axios": "^0.17.1",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",

@@ -1,10 +1,19 @@
+const AWS = require('aws-sdk');
 const faker = require('faker');
 
-const service = require('../service/build/server/index.js');
+require('dotenv').config();
+
+const sqs = new AWS.SQS({
+  region: 'us-east-2',
+  maxRetries: 15,
+  apiVersion: '2012-11-05',
+  credentials: new AWS.Credentials({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  }),
+});
 
 const { firstName, lastName } = faker.name;
-
-require('dotenv').config();
 
 const url = `${process.env.SQS_QUEUE_URL}-sqs`;
 
@@ -38,14 +47,13 @@ const sendNewDriver = (count) => {
   if (count < 1) {
     return;
   }
-  // const request = createRideRequest();
 
   const message = {
     QueueUrl: url,
-    MessageBody: createDriver(),
+    MessageBody: JSON.stringify(createDriver()),
   };
 
-  service.sqs.sendMessage(message, (err, data) => {
+  sqs.sendMessage(message, (err, data) => {
     if (err) { console.log(err); }
     if (data) {
       console.log(data);
