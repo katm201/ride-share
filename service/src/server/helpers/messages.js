@@ -6,7 +6,7 @@ dotenv.config();
 
 const processSQS = (jobType) => {
   const url = `${process.env.SQS_QUEUE_URL}-${jobType}`;
-  service.sqs.receiveMessage({ QueueUrl: url }, (err, data) => {
+  service.sqs.receiveMessage({ QueueUrl: url, MaxNumberOfMessages: 10 }, (err, data) => {
     if (err) { console.log(err); }
     if (data.Messages) {
       const jobs = data.Messages.map(message => (service.queue.create('new-driver', JSON.parse(message.Body)).priority('medium').attempts(5).save()));

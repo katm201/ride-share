@@ -42,6 +42,8 @@ const processQueue = {
   ),
   newDrivers: () => {
     service.queue.process('new-driver', (job, done) => {
+      // consolelog(job.data);
+      // done();
       newDriver(job.data).save()
         .then(() => {
           console.log();
