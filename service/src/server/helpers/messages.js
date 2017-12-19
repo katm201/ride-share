@@ -9,7 +9,7 @@ const processSQS = (jobType) => {
   service.sqs.receiveMessage({ QueueUrl: url }, (err, data) => {
     if (err) { console.log(err); }
     if (data.Messages) {
-      const jobs = data.Messages.map(message => (service.queue.create('test-new-driver', JSON.parse(message.Body)).priority('medium').attempts(5).save()));
+      const jobs = data.Messages.map(message => (service.queue.create('new-driver', JSON.parse(message.Body)).priority('medium').attempts(5).save()));
       Promise.all(jobs)
         .then(() => {
           data.Messages.forEach((message) => {

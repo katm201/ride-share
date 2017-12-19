@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 
 import service from '../index';
 import newRide from './new-rides';
+import newDriver from './new-driver';
 
 dotenv.config();
 
@@ -40,9 +41,15 @@ const processQueue = {
     })
   ),
   newDrivers: () => {
-    service.queue.process('test-new-driver', (job, done) => {
-      console.log(job.data);
-      done();
+    service.queue.process('new-driver', (job, done) => {
+      newDriver(job.data).save()
+        .then(() => {
+          console.log();
+          done();
+        })
+        .catch((err) => {
+          console.log('error', err);
+        });
     });
   },
 };
