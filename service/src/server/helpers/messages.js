@@ -41,36 +41,4 @@ const pollSQS = () => {
   processSQS('sqs');
 };
 
-// const messageParams = {
-//   DelaySeconds: 0,
-//   MessageAttributes: {
-//     Title: {
-//       DataType: 'String',
-//       StringValue: 'New Message!',
-//     },
-//     Author: {
-//       DataType: 'String',
-//       StringValue: 'Katherine',
-//     },
-//   },
-//   MessageBody: 'First message from Katherine!',
-//   QueueUrl: process.env.SQS_QUEUE_URL,
-// };
-
-// sqs.sendMessage(messageParams, (err, data) => {
-//   if (err) {
-//     console.log(err);
-//   } else {
-//     console.log(data);
-//   }
-// });
-
-// service.sqs.receiveMessage(recieveParams, (err, data) => {
-//   if (err) {
-//     console.log(err);
-//   } else {
-//     console.log(data);
-//   }
-// });
-
 export default pollSQS;
