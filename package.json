@@ -33,6 +33,7 @@
     "parallelshell": "^3.0.2"
   },
   "dependencies": {
+    "@newrelic/native-metrics": "^2.1.2",
     "aws-sdk": "^2.171.0",
     "axios": "^0.17.1",
     "babel-cli": "^6.26.0",

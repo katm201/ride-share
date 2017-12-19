@@ -44,22 +44,18 @@ const createDriver = () => {
 };
 
 const sendNewDriver = (count) => {
-  if (count < 1) {
-    return;
+  for (let i = 0; i < count; i++) {
+    const message = {
+      QueueUrl: url,
+      MessageBody: JSON.stringify(createDriver()),
+    };
+
+    sqs.sendMessage(message, (err) => {
+      if (err) { console.log(err); }
+    });
+
+    if (i % 100 === 0) { console.log(i); }
   }
-
-  const message = {
-    QueueUrl: url,
-    MessageBody: JSON.stringify(createDriver()),
-  };
-
-  sqs.sendMessage(message, (err, data) => {
-    if (err) { console.log(err); }
-    if (data) {
-      console.log(data);
-    }
-    sendNewDriver(count - 1);
-  });
 };
 
-sendNewDriver(1000);
+sendNewDriver(10000);
