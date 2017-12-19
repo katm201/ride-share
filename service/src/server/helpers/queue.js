@@ -45,8 +45,4 @@ const checkQueue = () => {
   processQueue.rides();
 };
 
-const helpers = {
-  checkQueue,
-};
-
-export default helpers;
+export default checkQueue;
