@@ -1,9 +1,11 @@
-import knex from 'knex';
-import bookshelf from 'bookshelf';
 import dotenv from 'dotenv';
-import knexPostgis from 'knex-postgis';
 
 dotenv.config();
+
+import newrelic from 'newrelic';
+import knex from 'knex';
+import bookshelf from 'bookshelf';
+import knexPostgis from 'knex-postgis';
 
 const pgKnex = knex({
   client: 'pg',
