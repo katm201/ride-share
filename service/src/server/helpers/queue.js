@@ -17,7 +17,7 @@ const {
 
 const processQueue = {
   rides: () => (
-    newrelic.startBackgroundTransaction('kue-new-ride', 'kue', () => {
+    newrelic.startBackgroundTransaction('kue-new-ride', () => {
       service.queue.process('ride', 1, (job, done) => {
         const dispatchInfo = {
           ride_id: job.data.ride_id,
@@ -45,7 +45,7 @@ const processQueue = {
     })
   ),
   newDrivers: () => {
-    newrelic.startBackgroundTransaction('kue-add-driver', 'kue', () => {
+    newrelic.startBackgroundTransaction('kue-add-driver', () => {
       service.queue.process('new-driver', (job, done) => {
         newDriver(job.data).save()
           .then(() => {
