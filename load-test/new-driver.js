@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const faker = require('faker');
+const prompt = require('prompt');
 
 require('dotenv').config();
 
@@ -14,8 +15,6 @@ const sqs = new AWS.SQS({
 });
 
 const { firstName, lastName } = faker.name;
-
-const url = `${process.env.SQS_QUEUE_URL}-new-driver`;
 
 const createLocation = () => {
   const minLog = -122.75;
@@ -43,7 +42,7 @@ const createDriver = () => {
   };
 };
 
-const sendNewDriver = (count) => {
+const sendNewDriver = (count, url) => {
   for (let i = 0; i < count; i++) {
     const message = {
       QueueUrl: url,
@@ -58,4 +57,10 @@ const sendNewDriver = (count) => {
   }
 };
 
-sendNewDriver(10000);
+prompt.start();
+
+prompt.get(['totalDrivers', 'toDev'], (err, result) => {
+  console.log(`Input recieved: sending ${result.totalDrivers} to ${result.toDev ? 'dev queue' : 'deployed queue'}`);
+  const baseUrl = result.toDev ? process.env.SQS_QUEUE_URL : process.env.SQS_QUEUE_URL.slice(0, -4);
+  sendNewDriver(result.totalDrivers, `${baseUrl}-new-driver`);
+});
