@@ -11,11 +11,11 @@ const pingTest = (totalRequests) => {
   }
   axios.all(requests)
     .then(axios.spread((...args) => {
-      console.log(args);
+      // console.log(args);
     }))
     .catch((err) => {
       console.log(err);
     });
 };
 
-pingTest(100);
+pingTest(1000);

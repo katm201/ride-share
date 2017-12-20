@@ -5,7 +5,7 @@ import db from '../../database/index';
 
 dotenv.config();
 
-const { pgKnex, st } = db;  ``
+const { pgKnex, st } = db;
 
 const getNearestDrivers = job => (
   pgKnex('drivers').select('id', st.asText('location')).orderByRaw(`ST_Distance(location, ST_GeometryFromText('${job.start_loc}', 4326)) DESC LIMIT 5`).where({ booked: false, available: true })
