@@ -1,17 +1,17 @@
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 import newrelic from 'newrelic';
-
 import express from 'express';
 import bodyParser from 'body-parser';
 import kue from 'kue';
 import events from 'events';
-import pg from 'pg';
+import AWS from 'aws-sdk';
 
 import router from './routes';
-import helpers from './helpers/queue';
-import db from '../database/index';
+import checkQueue from './helpers/queue';
+import pollSQS from './helpers/messages'
 
 events.EventEmitter.prototype._maxListeners = 0;
 
@@ -24,13 +24,24 @@ const queue = kue.createQueue({
   },
 });
 
+const sqs = new AWS.SQS({
+  region: 'us-east-2',
+  maxRetries: 15,
+  apiVersion: '2012-11-05',
+  credentials: new AWS.Credentials({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  }),
+});
+
 server.use(bodyParser.json());
 
 server.use('/', router);
 
-const { checkQueue } = helpers;
-
-setInterval(() => { checkQueue(); }, 50);
+setInterval(() => {
+  checkQueue();
+}, 50);
+setInterval(() => { pollSQS(); }, 100);
 
 const port = process.env.PORT || 80;
 
@@ -40,6 +51,7 @@ console.log(`Listening on ${port}`);
 const service = {
   queue,
   server,
+  sqs,
 };
 
 export default service;

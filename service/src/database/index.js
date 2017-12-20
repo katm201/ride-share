@@ -1,7 +1,7 @@
 import knex from 'knex';
 import bookshelf from 'bookshelf';
-import dotenv from 'dotenv';
 import knexPostgis from 'knex-postgis';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
