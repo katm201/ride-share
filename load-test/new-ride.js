@@ -1,5 +1,8 @@
 const axios = require('axios');
 const faker = require('faker');
+const prompt = require('prompt');
+
+require('dotenv').config();
 
 const { uuid } = faker.random;
 
@@ -16,19 +19,23 @@ const createLocation = () => {
 const createRideRequest = () => ({ start_loc: createLocation(), ride_id: uuid() });
 
 const sendNewRides = (count) => {
-  if (count < 1) {
-    return;
-  } else {
-    const request = createRideRequest();
-
-    axios.post(url, request)
-      .then((response) => {
-        sendNewRides(count - 1);
-      })
-      .catch((err) => {
-        sendNewRides(count - 1);
-      });
+  const requests = [];
+  for (let i = 0; i < count; i++) {
+    requests.push(axios.post(url, createRideRequest()));
   }
-}
+  axios.all(requests)
+    .then(axios.spread((...args) => {
+      console.log('done');
+    }))
+    .catch((err) => {
+      console.log(err);
+    });
+};
 
-sendNewRides(50);
+prompt.start();
+
+prompt.get(['totalRides', 'toLocal'], (err, result) => {
+  console.log(`Input recieved: sending ${result.totalRides} to ${result.toLocal ? 'local /new_ride' : 'deployed /new_ride'}`);
+  const baseUrl = result.toLocal ? process.env.EC2_URL : `http://localhost:${process.env.PORT}`;
+  sendNewRides(result.totalDrivers, `${baseUrl}/new_ride`);
+});
