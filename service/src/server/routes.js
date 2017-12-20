@@ -1,3 +1,8 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+import newrelic from 'newrelic';
 import { Router } from 'express';
 
 import middleware from './middleware/queue';

@@ -40,7 +40,8 @@ const processQueue = {
         });
     })
   ),
-  newDrivers: () => {
+  newDrivers: (checkNewDrivers) => {
+    checkNewDrivers();
     service.queue.process('new-driver', (job, done) => {
       // consolelog(job.data);
       // done();
@@ -56,9 +57,9 @@ const processQueue = {
   },
 };
 
-const checkQueue = () => {
+const checkQueue = (checkNewDrivers) => {
   processQueue.rides();
-  processQueue.newDrivers();
+  processQueue.newDrivers(checkNewDrivers);
 };
 
 export default checkQueue;

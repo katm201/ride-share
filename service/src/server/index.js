@@ -8,7 +8,16 @@ import bodyParser from 'body-parser';
 import kue from 'kue';
 import events from 'events';
 import AWS from 'aws-sdk';
+// import pg from 'pg';
 
+// import instrumentPostgres from './instrumentation/pg';
+// import instrumentSQS from './instrumentation/sqs';
+
+// newrelic.instrument('checkQueue');
+// newrelic.instrument('pollSQS', instrumentSQS);
+// newrelic.instrument('pg', instrumentPostgres);
+
+// import db from '../database/index';
 import router from './routes';
 import checkQueue from './helpers/queue';
 import pollSQS from './helpers/messages'
@@ -38,7 +47,12 @@ server.use(bodyParser.json());
 
 server.use('/', router);
 
-setInterval(() => { checkQueue(); }, 50);
+setInterval(() => {
+  const checkNewDrivers = newrelic.createBackgroundTransaction('checkNewDriversQueue', () => {
+    newrelic.endTransaction();
+  });
+  checkQueue(checkNewDrivers);
+}, 50);
 setInterval(() => { pollSQS(); }, 100);
 
 const port = process.env.PORT || 80;
