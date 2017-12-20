@@ -37,6 +37,8 @@ const sendMessage = (messageParams) => {
 
 const pollSQS = () => {
   processSQS('new-driver');
+  processSQS('complete-driver');
+  processSQS('driver-update');
 };
 
 export default pollSQS;
