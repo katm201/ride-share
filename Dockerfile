@@ -1,5 +1,4 @@
 FROM node:9.2-alpine
-FROM python:2.7-alpine
 
 RUN mkdir -p /container/src
 
