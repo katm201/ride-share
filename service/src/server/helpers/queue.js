@@ -67,17 +67,19 @@ const processQueue = {
     })
   ),
   newDrivers: () => {
-    newrelic.startBackgroundTransaction('add-driver/kue/process', 'kue', () => {
+    newrelic.startBackgroundTransaction('new-driver/kue/process', 'kue', () => {
       service.queue.process('new-driver', (job, done) => {
         newrelic.endTransaction();
-        newDriver(job.data).save()
-          .then(() => {
-            console.log();
-            done();
-          })
-          .catch((err) => {
-            console.log('error', err);
-          });
+        newrelic.startBackgroundTransaction('new-driver/knex/add-driver', 'knex', () => {
+          newDriver(job.data).save()
+            .then(() => {
+              newrelic.endTransaction();
+              done();
+            })
+            .catch((err) => {
+              console.log('error', err);
+            });
+        });
       });
     });
   },
