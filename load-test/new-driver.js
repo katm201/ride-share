@@ -15,7 +15,7 @@ const sqs = new AWS.SQS({
 
 const { firstName, lastName } = faker.name;
 
-const url = `${process.env.SQS_QUEUE_URL}-sqs`;
+const url = `${process.env.SQS_QUEUE_URL}-new-driver`;
 
 const createLocation = () => {
   const minLog = -122.75;
