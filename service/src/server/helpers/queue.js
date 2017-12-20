@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import newrelic from 'newrelic';
 
 import service from '../index';
 import newRide from './new-rides';
@@ -40,26 +41,27 @@ const processQueue = {
         });
     })
   ),
-  newDrivers: (checkNewDrivers) => {
-    checkNewDrivers();
-    service.queue.process('new-driver', (job, done) => {
-      // consolelog(job.data);
-      // done();
-      newDriver(job.data).save()
-        .then(() => {
-          console.log();
-          done();
-        })
-        .catch((err) => {
-          console.log('error', err);
-        });
+  newDrivers: () => {
+    newrelic.startBackgroundTransaction('kue-add-driver', 'kue', () => {
+      service.queue.process('new-driver', (job, done) => {
+        newDriver(job.data).save()
+          .then(() => {
+            console.log();
+            done();
+            newrelic.endTransaction();
+          })
+          .catch((err) => {
+            console.log('error', err);
+            newrelic.endTransaction();
+          });
+      });
     });
   },
 };
 
-const checkQueue = (checkNewDrivers) => {
+const checkQueue = () => {
   processQueue.rides();
-  processQueue.newDrivers(checkNewDrivers);
+  processQueue.newDrivers();
 };
 
 export default checkQueue;
