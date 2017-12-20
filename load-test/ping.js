@@ -10,9 +10,7 @@ const pingTest = (totalRequests) => {
     requests.push(axios.get(url));
   }
   axios.all(requests)
-    .then(axios.spread((...args) => {
-      // console.log(args);
-    }))
+    .then(() => { })
     .catch((err) => {
       console.log(err);
     });
