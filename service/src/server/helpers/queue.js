@@ -3,7 +3,7 @@ import newrelic from 'newrelic';
 
 import service from '../index';
 import newRide from './new-rides';
-import newDriver from './new-driver';
+import newDriver from './drivers';
 
 dotenv.config();
 
@@ -64,27 +64,33 @@ const processRides = () => {
           .catch((err) => { console.log(err); });
       });
     });
-  })
-}
+  });
+};
 
-const processQueue = {
-  newDrivers: () => {
-    newrelic.startBackgroundTransaction('new-driver/kue/process', 'kue', () => {
-      service.queue.process('new-driver', (job, done) => {
-        newrelic.endTransaction();
-        newrelic.startBackgroundTransaction('new-driver/knex/add-driver', 'knex', () => {
-          newDriver(job.data).save()
-            .then(() => {
-              newrelic.endTransaction();
-              done();
-            })
-            .catch((err) => {
-              console.log('error', err);
-            });
-        });
+const pgQuery = {
+  new: newDriver,
+  // 'complete-driver': completeDriver,
+};
+
+const processDrivers = (jobType) => {
+  newrelic.startBackgroundTransaction(`${jobType}-driver/kue/process`, 'kue', () => {
+    service.queue.process(jobType, (job, done) => {
+      newrelic.endTransaction();
+      newrelic.startBackgroundTransaction(`${jobType}-driver/knex/query`, 'knex', () => {
+        pgQuery[jobType](job.data)
+          .then(() => {
+            newrelic.endTransaction();
+            done();
+          })
+          .catch((err) => {
+            console.log('error', err);
+          });
       });
     });
-  },
+  });
+};
+
+const processQueue = {
   completeDriver: () => {
     newrelic.startBackgroundTransaction('complete-driver/kue/process', 'kue', () => {
       service.queue.process('complete-driver', (job, done) => {
@@ -106,7 +112,7 @@ const processQueue = {
 
 const checkQueue = () => {
   processRides();
-  processQueue.newDrivers();
+  processDrivers('new');
   processQueue.completeDriver();
 };
 

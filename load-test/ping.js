@@ -2,9 +2,6 @@ require('dotenv').config();
 const axios = require('axios');
 const prompt = require('prompt');
 
-// const url = 'http://localhost:3333';
-// const url = process.env.EC2_URL;
-
 const pingTest = (totalRequests, url) => {
   for (let i = 0; i < totalRequests; i++) {
     axios.get(url)
@@ -14,8 +11,6 @@ const pingTest = (totalRequests, url) => {
       });
   }
 };
-
-// pingTest(10);
 
 prompt.start();
 

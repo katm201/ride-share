@@ -21,4 +21,10 @@ const addDriver = (job) => {
   return Driver.forge(driver);
 };
 
+// const completeDriver = (job) => {
+//   const update = {
+
+//   }
+// }
+
 export default addDriver;
