@@ -25,9 +25,9 @@ const changeBooked = job => (
   }
 );
 
-const drivers = {
+const driverUtils = {
   formatNewDriver,
   changeBooked,
 };
 
-export default drivers;
+export default driverUtils;

@@ -3,7 +3,7 @@ import newrelic from 'newrelic';
 
 import service from '../index';
 import newRide from './new-rides';
-import drivers from './drivers';
+import driverUtils from './drivers';
 import tables from '../../database/config';
 
 dotenv.config();
@@ -18,7 +18,7 @@ const {
 
 const { Driver } = tables;
 
-const { formatNewDriver, changeBooked } = drivers;
+const { formatNewDriver, changeBooked } = driverUtils;
 
 const processRides = () => {
   newrelic.startBackgroundTransaction('new-ride/kue/process', 'kue', () => {
