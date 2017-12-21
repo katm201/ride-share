@@ -17,46 +17,87 @@ const {
 
 const processQueue = {
   rides: () => (
-    newrelic.startBackgroundTransaction('kue-new-ride', () => {
+    newrelic.startBackgroundTransaction('new-ride/kue/process', 'kue', () => {
       service.queue.process('ride', 1, (job, done) => {
         const dispatchInfo = {
           ride_id: job.data.ride_id,
           start_loc: job.data.start_loc,
           drivers: [],
         };
-        getNearestDrivers(job.data)
-          .then((drivers) => {
-            drivers.forEach((driver) => {
-              dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
-            });
-            return updateDrivers(drivers);
-          })
-          .then(() => (sendDrivers(dispatchInfo)))
-          .then(() => (addRequest(job.data)))
-          .then(ids => (addJoins({ request_id: ids[0], drivers: dispatchInfo.drivers })))
-          .then(() => {
-            newrelic.endTransaction();
-            done();
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        newrelic.endTransaction();
+        newrelic.startBackgroundTransaction('new-ride/knex/get-drivers', 'knex', () => {
+          getNearestDrivers(job.data)
+            .then((drivers) => {
+              newrelic.endTransaction();
+              drivers.forEach((driver) => {
+                dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
+              });
+              newrelic.startBackgroundTransaction('new-ride/knex/update-drivers', 'knex', () => {
+                updateDrivers(drivers, true)
+                  .then(() => {
+                    newrelic.endTransaction();
+                    return sendDrivers(dispatchInfo);
+                  })
+                  .then(() => {
+                    newrelic.startBackgroundTransaction('new-ride/knex/add-request', 'knex', () => {
+                      addRequest(job.data)
+                        .then((ids) => {
+                          newrelic.endTransaction();
+                          newrelic.startBackgroundTransaction('new-ride/knex/add-joins', 'knex', () => {
+                            const join = {
+                              request_id: ids[0],
+                              drivers: dispatchInfo.drivers,
+                            };
+                            addJoins(join)
+                              .then(() => {
+                                newrelic.endTransaction();
+                                done();
+                              })
+                              .catch((err) => { console.log(err); });
+                          });
+                        })
+                        .catch((err) => { console.log(err); });
+                    });
+                  })
+                  .catch((err) => { console.log(err); });
+              });
+            })
+            .catch((err) => { console.log(err); });
+        });
       });
     })
   ),
   newDrivers: () => {
-    newrelic.startBackgroundTransaction('kue-add-driver', () => {
+    newrelic.startBackgroundTransaction('new-driver/kue/process', 'kue', () => {
       service.queue.process('new-driver', (job, done) => {
-        newDriver(job.data).save()
-          .then(() => {
-            console.log();
-            done();
-            newrelic.endTransaction();
-          })
-          .catch((err) => {
-            console.log('error', err);
-            newrelic.endTransaction();
-          });
+        newrelic.endTransaction();
+        newrelic.startBackgroundTransaction('new-driver/knex/add-driver', 'knex', () => {
+          newDriver(job.data).save()
+            .then(() => {
+              newrelic.endTransaction();
+              done();
+            })
+            .catch((err) => {
+              console.log('error', err);
+            });
+        });
+      });
+    });
+  },
+  completeDriver: () => {
+    newrelic.startBackgroundTransaction('complete-driver/kue/process', 'kue', () => {
+      service.queue.process('complete-driver', (job, done) => {
+        newrelic.endTransaction();
+        newrelic.startBackgroundTransaction('complete-driver/knex/process', 'knex', () => {
+          updateDrivers([{ id: job.data.driver_id }], false)
+            .then(() => {
+              newrelic.endTransaction();
+              done();
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        });
       });
     });
   },
@@ -65,6 +106,7 @@ const processQueue = {
 const checkQueue = () => {
   processQueue.rides();
   processQueue.newDrivers();
+  processQueue.completeDriver();
 };
 
 export default checkQueue;

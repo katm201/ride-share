@@ -11,8 +11,8 @@ const getNearestDrivers = job => (
   pgKnex('drivers').select('id', st.asText('location')).orderByRaw(`ST_Distance(location, ST_GeometryFromText('${job.start_loc}', 4326)) DESC LIMIT 5`).where({ booked: false, available: true })
 );
 
-const updateDrivers = (drivers) => {
-  const driverUpdates = drivers.map(driver => (pgKnex('drivers').where('id', driver.id).update({ booked: true })));
+const updateDrivers = (drivers, booked) => {
+  const driverUpdates = drivers.map(driver => (pgKnex('drivers').where('id', driver.id).update({ booked })));
   return Promise.all(driverUpdates);
 };
 
