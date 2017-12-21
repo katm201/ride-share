@@ -3,7 +3,8 @@ import newrelic from 'newrelic';
 
 import service from '../index';
 import newRide from './new-rides';
-import newDriver from './drivers';
+import drivers from './drivers';
+import tables from '../../database/config';
 
 dotenv.config();
 
@@ -14,6 +15,10 @@ const {
   addJoins,
   sendDrivers,
 } = newRide;
+
+const { Driver } = tables;
+
+const { formatNewDriver, changeBooked } = drivers;
 
 const processRides = () => {
   newrelic.startBackgroundTransaction('new-ride/kue/process', 'kue', () => {
@@ -67,18 +72,26 @@ const processRides = () => {
   });
 };
 
-const pgQuery = {
-  new: newDriver,
-  // 'complete-driver': completeDriver,
+const model = {
+  new: info => (Driver.forge(info).save()),
+  complete: (info, id) => (Driver.forge({ id }).save(info, { patch: true })),
+};
+
+const formatDriver = {
+  new: formatNewDriver,
+  complete: changeBooked,
 };
 
 const processDrivers = (jobType) => {
   newrelic.startBackgroundTransaction(`${jobType}-driver/kue/process`, 'kue', () => {
-    service.queue.process(jobType, (job, done) => {
+    service.queue.process(`${jobType}-driver`, (job, done) => {
       newrelic.endTransaction();
       newrelic.startBackgroundTransaction(`${jobType}-driver/knex/query`, 'knex', () => {
-        pgQuery[jobType](job.data)
-          .then(() => {
+        const info = formatDriver[jobType](job.data);
+        const id = job.data.driver_id;
+        model[jobType](info, id)
+          .then((response) => {
+            console.log(response);
             newrelic.endTransaction();
             done();
           })
@@ -90,30 +103,10 @@ const processDrivers = (jobType) => {
   });
 };
 
-const processQueue = {
-  completeDriver: () => {
-    newrelic.startBackgroundTransaction('complete-driver/kue/process', 'kue', () => {
-      service.queue.process('complete-driver', (job, done) => {
-        newrelic.endTransaction();
-        newrelic.startBackgroundTransaction('complete-driver/knex/process', 'knex', () => {
-          updateDrivers([{ id: job.data.driver_id }], false)
-            .then(() => {
-              newrelic.endTransaction();
-              done();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        });
-      });
-    });
-  },
-};
-
 const checkQueue = () => {
   processRides();
   processDrivers('new');
-  processQueue.completeDriver();
+  processDrivers('complete');
 };
 
 export default checkQueue;

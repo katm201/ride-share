@@ -1,15 +1,13 @@
 import dotenv from 'dotenv';
 
 import db from '../../database/index';
-import tables from '../../database/config';
 
 dotenv.config();
 
 const { st } = db;
-const { Driver } = tables;
 
-const addDriver = (job) => {
-  const driver = {
+const formatNewDriver = job => (
+  {
     first_name: job.first_name,
     last_name: job.last_name,
     joined: job.joined,
@@ -17,14 +15,19 @@ const addDriver = (job) => {
     available: true,
     booked: false,
     location: st.geomFromText(job.location, 4326),
-  };
-  return Driver.forge(driver);
+  }
+);
+
+const changeBooked = job => (
+  {
+    booked: false,
+    location: st.geomFromText(job.location, 4326),
+  }
+);
+
+const drivers = {
+  formatNewDriver,
+  changeBooked,
 };
 
-// const completeDriver = (job) => {
-//   const update = {
-
-//   }
-// }
-
-export default addDriver;
+export default drivers;
