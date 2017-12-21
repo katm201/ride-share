@@ -11,7 +11,7 @@ import AWS from 'aws-sdk';
 
 import router from './routes';
 import checkQueue from './helpers/queue';
-import pollSQS from './helpers/messages'
+import pollSQS from './helpers/receive-sqs';
 
 events.EventEmitter.prototype._maxListeners = 0;
 
