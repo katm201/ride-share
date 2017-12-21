@@ -83,11 +83,18 @@ const processQueue = {
       });
     });
   },
+  completeDriver: () => {
+    service.queue.process('complete-driver', (job, done) => {
+      console.log(job.data);
+      done()
+    });
+  },
 };
 
 const checkQueue = () => {
   processQueue.rides();
   processQueue.newDrivers();
+  processQueue.completeDriver();
 };
 
 export default checkQueue;
