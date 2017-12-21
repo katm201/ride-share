@@ -33,7 +33,7 @@ const processQueue = {
                 dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
               });
               newrelic.startBackgroundTransaction('new-ride/knex/update-drivers', 'knex', () => {
-                updateDrivers(drivers)
+                updateDrivers(drivers, true)
                   .then(() => {
                     newrelic.endTransaction();
                     return sendDrivers(dispatchInfo);
@@ -52,16 +52,17 @@ const processQueue = {
                               .then(() => {
                                 newrelic.endTransaction();
                                 done();
-                              });
+                              })
+                              .catch((err) => { console.log(err); });
                           });
-                        });
+                        })
+                        .catch((err) => { console.log(err); });
                     });
-                  });
+                  })
+                  .catch((err) => { console.log(err); });
               });
             })
-            .catch((err) => {
-              console.log(err);
-            });
+            .catch((err) => { console.log(err); });
         });
       });
     })
@@ -84,9 +85,20 @@ const processQueue = {
     });
   },
   completeDriver: () => {
-    service.queue.process('complete-driver', (job, done) => {
-      console.log(job.data);
-      done()
+    newrelic.startBackgroundTransaction('complete-driver/kue/process', 'kue', () => {
+      service.queue.process('complete-driver', (job, done) => {
+        newrelic.endTransaction();
+        newrelic.startBackgroundTransaction('complete-driver/knex/process', 'knex', () => {
+          updateDrivers([{ id: job.data.driver_id }], false)
+            .then(() => {
+              newrelic.endTransaction();
+              done();
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        });
+      });
     });
   },
 };
