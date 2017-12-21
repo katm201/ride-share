@@ -27,15 +27,10 @@ const sendNewRides = (count, url) => {
   }
 };
 
-// prompt.start();
+prompt.start();
 
-// prompt.get(['totalRides', 'toLocal'], (err, result) => {
-//   console.log(`Input recieved: sending ${result.totalRides} to ${result.toLocal === 'true' ? 'local /new_ride' : 'deployed /new_ride'}`);
-//   const baseUrl = result.toLocal === 'true' ? `http://localhost:${process.env.PORT}` : process.env.EC2_URL;
-//   return sendNewRides(result.totalDrivers, `${baseUrl}/new_ride`);
-// });
-
-const localUrl = 'http://localhost:3333/new_ride';
-const deployedUrl = `${process.env.EC2_URL}/new_ride`;
-
-sendNewRides(1, deployedUrl);
+prompt.get(['totalRides', 'toLocal'], (err, result) => {
+  console.log(`Input recieved: sending ${result.totalRides} to ${result.toLocal === 'true' ? 'local /new_ride' : 'deployed /new_ride'}`);
+  const baseUrl = result.toLocal === 'true' ? `http://localhost:${process.env.PORT}` : process.env.EC2_URL;
+  sendNewRides(result.totalRides, `${baseUrl}/new_ride`);
+});
