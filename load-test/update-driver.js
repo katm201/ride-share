@@ -42,7 +42,6 @@ const sendDriverUpdate = (count, url) => {
 
     sqs.sendMessage(message, (err) => {
       if (err) { console.log(err); }
-      console.log('sent');
     });
 
     if (i % 100 === 0) { console.log(i); }

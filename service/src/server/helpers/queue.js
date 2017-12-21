@@ -18,7 +18,7 @@ const {
 
 const { Driver } = tables;
 
-const { formatNewDriver, changeBooked } = driverUtils;
+const { formatNewDriver, changeBooked, updateStatus } = driverUtils;
 
 const processRides = () => {
   newrelic.startBackgroundTransaction('new-ride/kue/process', 'kue', () => {
@@ -75,11 +75,13 @@ const processRides = () => {
 const model = {
   new: info => (Driver.forge(info).save()),
   complete: (info, id) => (Driver.forge({ id }).save(info, { patch: true })),
+  update: (info, id) => (Driver.forge({ id }).save(info, { patch: true })),
 };
 
 const formatDriver = {
   new: formatNewDriver,
   complete: changeBooked,
+  update: updateStatus,
 };
 
 const processDrivers = (jobType) => {
@@ -90,8 +92,7 @@ const processDrivers = (jobType) => {
         const info = formatDriver[jobType](job.data);
         const id = job.data.driver_id;
         model[jobType](info, id)
-          .then((response) => {
-            console.log(response);
+          .then(() => {
             newrelic.endTransaction();
             done();
           })
@@ -107,6 +108,7 @@ const checkQueue = () => {
   processRides();
   processDrivers('new');
   processDrivers('complete');
+  processDrivers('update');
 };
 
 export default checkQueue;

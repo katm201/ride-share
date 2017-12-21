@@ -25,9 +25,21 @@ const changeBooked = job => (
   }
 );
 
+const updateStatus = (job) => {
+  const base = {
+    available: job.available,
+    location: st.geomFromText(job.location, 4326),
+  };
+  if (!job.available) {
+    base.booked = false;
+  }
+  return base;
+};
+
 const driverUtils = {
   formatNewDriver,
   changeBooked,
+  updateStatus,
 };
 
 export default driverUtils;
