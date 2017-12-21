@@ -36,6 +36,6 @@ const sendNewRides = (count, url) => {
 // });
 
 const localUrl = 'http://localhost:3333/new_ride';
-const deployedUrl = process.env.EC2_URL;
+const deployedUrl = `${process.env.EC2_URL}/new_ride`;
 
-sendNewRides(10, localUrl);
+sendNewRides(1, deployedUrl);

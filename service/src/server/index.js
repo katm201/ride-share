@@ -38,8 +38,8 @@ server.use(bodyParser.json());
 
 server.use('/', router);
 
-setInterval(() => { checkQueue(); }, 50);
-setInterval(() => { pollSQS(); }, 100);
+setInterval(() => { checkQueue(); }, 100);
+setInterval(() => { pollSQS(); }, 1000);
 
 const port = process.env.PORT || 80;
 
