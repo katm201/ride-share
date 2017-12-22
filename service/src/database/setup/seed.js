@@ -13,7 +13,7 @@ const seed = (totalSections, totalRecords, section = 0) => {
     const startCount = section * batchSize;
     const maxCount = startCount + batchSize;
 
-    const driversCount = batchSize / 20;
+    const driversCount = batchSize / 10;
     const requestsCount = batchSize / 5;
 
     const totalDrivers = (section + 1) * driversCount;
