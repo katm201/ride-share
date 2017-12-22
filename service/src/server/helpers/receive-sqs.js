@@ -35,16 +35,6 @@ const processSQS = (jobType) => {
   });
 };
 
-const sendMessage = (messageParams) => {
-  service.sqs.sendMessage(messageParams, (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(data);
-    }
-  });
-};
-
 const pollSQS = () => {
   processSQS('new-driver');
   processSQS('complete-driver');
