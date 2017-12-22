@@ -1,10 +1,11 @@
 import dotenv from 'dotenv';
+import newrelic from 'newrelic';
 
 import db from '../../database/index';
 
 dotenv.config();
 
-const { st } = db;
+const { pgKnex, st } = db;
 
 const formatNewDriver = job => (
   {
@@ -36,10 +37,46 @@ const updateStatus = (job) => {
   return base;
 };
 
+const getTotalCount = () => (pgKnex('drivers').count('id'));
+
+const getBookedCount = () => (pgKnex('drivers').count('id').where({ booked: true }));
+
+const getUnavailableCount = () => (pgKnex('drivers').count('id').where({ available: false }));
+
+const getUtilization = (callback) => {
+  const utilization = {};
+  newrelic.startBackgroundTransaction('driver-util/knex/total', 'knex', () => {
+    getTotalCount()
+      .then((totalDrivers) => {
+        newrelic.endTransaction();
+        utilization.total = parseInt(totalDrivers[0].count, 10);
+        newrelic.startBackgroundTransaction('driver-util/knex/booked', 'knex', () => {
+          getBookedCount()
+            .then((bookedDrivers) => {
+              newrelic.endTransaction();
+              utilization.booked = parseInt(bookedDrivers[0].count, 10);
+              newrelic.startBackgroundTransaction('driver-util/knex/unavailable', 'knex', () => {
+                getUnavailableCount()
+                  .then((unavailableDrivers) => {
+                    newrelic.endTransaction();
+                    utilization.unavailable = parseInt(unavailableDrivers[0].count, 10);
+                    callback(utilization);
+                  })
+                  .catch((err) => { console.log(err); });
+              });
+            })
+            .catch((err) => { console.log(err); });
+        });
+      })
+      .catch((err) => { console.log(err); });
+  });
+};
+
 const driverUtils = {
   formatNewDriver,
   changeBooked,
   updateStatus,
+  getUtilization,
 };
 
 export default driverUtils;
