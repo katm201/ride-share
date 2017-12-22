@@ -29,25 +29,25 @@ const processRides = () => {
         drivers: [],
       };
       newrelic.endTransaction();
-      newrelic.startBackgroundTransaction('new-ride/knex/get-drivers', 'knex', () => {
+      newrelic.startBackgroundTransaction('new-ride/knex/get-drivers', 'db', () => {
         getNearestDrivers(job.data)
           .then((drivers) => {
             newrelic.endTransaction();
             drivers.forEach((driver) => {
               dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
             });
-            newrelic.startBackgroundTransaction('new-ride/knex/update-drivers', 'knex', () => {
+            newrelic.startBackgroundTransaction('new-ride/knex/update-drivers', 'db', () => {
               updateDrivers(drivers, true)
                 .then(() => {
                   newrelic.endTransaction();
                   return sendDrivers(dispatchInfo);
                 })
                 .then(() => {
-                  newrelic.startBackgroundTransaction('new-ride/knex/add-request', 'knex', () => {
+                  newrelic.startBackgroundTransaction('new-ride/knex/add-request', 'db', () => {
                     addRequest(job.data)
                       .then((ids) => {
                         newrelic.endTransaction();
-                        newrelic.startBackgroundTransaction('new-ride/knex/add-joins', 'knex', () => {
+                        newrelic.startBackgroundTransaction('new-ride/knex/add-joins', 'db', () => {
                           const join = {
                             request_id: ids[0],
                             drivers: dispatchInfo.drivers,
@@ -88,7 +88,7 @@ const processDrivers = (jobType) => {
   newrelic.startBackgroundTransaction(`${jobType}-driver/kue/process`, 'kue', () => {
     service.queue.process(`${jobType}-driver`, (job, done) => {
       newrelic.endTransaction();
-      newrelic.startBackgroundTransaction(`${jobType}-driver/knex/query`, 'knex', () => {
+      newrelic.startBackgroundTransaction(`${jobType}-driver/bookshelf/query`, 'db', () => {
         const info = formatDriver[jobType](job.data);
         const id = job.data.driver_id;
         model[jobType](info, id)

@@ -45,17 +45,17 @@ const getUnavailableCount = () => (pgKnex('drivers').count('id').where({ availab
 
 const getUtilization = (callback) => {
   const utilization = {};
-  newrelic.startBackgroundTransaction('driver-util/knex/total', 'knex', () => {
+  newrelic.startBackgroundTransaction('driver-util/knex/total', 'db', () => {
     getTotalCount()
       .then((totalDrivers) => {
         newrelic.endTransaction();
         utilization.total = parseInt(totalDrivers[0].count, 10);
-        newrelic.startBackgroundTransaction('driver-util/knex/booked', 'knex', () => {
+        newrelic.startBackgroundTransaction('driver-util/knex/booked', 'db', () => {
           getBookedCount()
             .then((bookedDrivers) => {
               newrelic.endTransaction();
               utilization.booked = parseInt(bookedDrivers[0].count, 10);
-              newrelic.startBackgroundTransaction('driver-util/knex/unavailable', 'knex', () => {
+              newrelic.startBackgroundTransaction('driver-util/knex/unavailable', 'db', () => {
                 getUnavailableCount()
                   .then((unavailableDrivers) => {
                     newrelic.endTransaction();
