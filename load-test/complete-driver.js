@@ -49,7 +49,7 @@ const sendCompleteDriver = (count, url) => {
 prompt.start();
 
 prompt.get(['totalDrivers', 'toDev'], (err, result) => {
-  console.log(`Input recieved: sending ${result.totalDrivers} to ${result.toDev ? 'dev queue' : 'deployed queue'}`);
-  const baseUrl = result.toDev ? process.env.SQS_QUEUE_URL : process.env.SQS_QUEUE_URL.slice(0, -4);
+  console.log(`Input recieved: sending ${result.totalDrivers} to ${result.toDev === 'true' ? 'dev queue' : 'deployed queue'}`);
+  const baseUrl = result.toDev === 'true' ? process.env.SQS_QUEUE_URL : process.env.SQS_QUEUE_URL.slice(0, -4);
   sendCompleteDriver(result.totalDrivers, `${baseUrl}-complete-driver`);
 });

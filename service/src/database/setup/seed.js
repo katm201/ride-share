@@ -7,9 +7,9 @@ const { pgKnex } = db;
 
 const { createDrivers, createRequests, createJoins } = helpers;
 
-const seed = (totalSections, section = 0) => {
+const seed = (totalSections, totalRecords, section = 0) => {
   if (section < totalSections) {
-    const batchSize = 10000000 / totalSections;
+    const batchSize = totalRecords / totalSections;
     const startCount = section * batchSize;
     const maxCount = startCount + batchSize;
 
@@ -52,7 +52,7 @@ const seed = (totalSections, section = 0) => {
 
 prompt.start();
 
-prompt.get(['totalSections'], (err, result) => {
-  console.log(`Input recieved: batching seeding into ${result.totalSections} total sections`);
-  seed(result.totalSections, 0);
+prompt.get(['totalSections', 'totalRecords'], (err, result) => {
+  console.log(`Input recieved: batching seeding ${result.totalRecords} records into ${result.totalSections} total sections`);
+  seed(result.totalSections, result.totalRecords, 0);
 });
