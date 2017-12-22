@@ -40,7 +40,7 @@ const seed = (totalSections, totalRecords, section = 0) => {
         console.log(`${maxCount} total joins saved`);
         const stop = new Date();
         console.log(`completed section ${section} at ${stop.toISOString()}`);
-        seed(totalSections, section + 1);
+        seed(totalSections, totalRecords, section + 1);
       })
       .catch((err) => {
         console.log(err);

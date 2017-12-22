@@ -39,11 +39,13 @@ server.use(bodyParser.json());
 
 server.use('/', router);
 
-const pollInterval = process.env.POLL_INTERVAL || 250;
+const sqsPollInterval = process.env.SQS_POLL_INTERVAL || 1000;
+const kuePollInterval = process.env.KUE_POLL_INTERVAL || 250;
+const metricsInterval = process.env.METRICS_INTERVAL || 300000;
 
-setInterval(() => { checkQueue(); }, pollInterval);
-setInterval(() => { pollSQS(); }, pollInterval * 4);
-setInterval(() => { sendMetrics(); }, 300000);
+setInterval(() => { checkQueue(); }, kuePollInterval);
+setInterval(() => { pollSQS(); }, sqsPollInterval);
+setInterval(() => { sendMetrics(); }, metricsInterval);
 
 const port = process.env.PORT || 80;
 

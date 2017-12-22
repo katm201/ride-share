@@ -78,6 +78,7 @@ const model = {
   update: (info, id) => (Driver.forge({ id }).save(info, { patch: true })),
 };
 
+// TODO: completeDriver should also come with a timestamp (needs to be added)
 const formatDriver = {
   new: formatNewDriver,
   complete: changeBooked,
