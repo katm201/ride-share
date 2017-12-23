@@ -82,31 +82,23 @@ const formatDriver = {
   update: updateStatus,
 };
 
-const processDrivers = (jobType) => {
-  newrelic.startBackgroundTransaction(`${jobType}-driver/kue/process`, 'kue', () => {
-    service.queue.process(`${jobType}-driver`, (job, done) => {
-      newrelic.endTransaction();
-      newrelic.startBackgroundTransaction(`${jobType}-driver/bookshelf/query`, 'db', () => {
-        const info = formatDriver[jobType](job.data);
-        const id = job.data.driver_id;
-        model[jobType](info, id)
-          .then(() => {
-            newrelic.endTransaction();
-            done();
-          })
-          .catch((err) => {
-            console.log('error', err);
-          });
+const processDrivers = (job, jobType, callback) => {
+  return newrelic.startBackgroundTransaction(`${jobType}-driver/bookshelf/query`, 'db', () => {
+    const info = formatDriver[jobType](job);
+    const id = job.driver_id;
+    model[jobType](info, id)
+      .then((response) => {
+        newrelic.endTransaction();
+        callback();
+      })
+      .catch((err) => {
+        console.log('error', err);
       });
-    });
   });
 };
 
-const checkQueue = () => {
-  processRides();
-  processDrivers('new');
-  processDrivers('complete');
-  processDrivers('update');
+const queue = {
+  processDrivers,
 };
 
-export default checkQueue;
+export default queue;

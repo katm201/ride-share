@@ -10,7 +10,6 @@ import events from 'events';
 import AWS from 'aws-sdk';
 
 import router from './routes';
-import checkQueue from './helpers/queue';
 import pollSQS from './helpers/receive-sqs';
 import sendMetrics from './helpers/send-sqs';
 
@@ -40,10 +39,8 @@ server.use(bodyParser.json());
 server.use('/', router);
 
 const sqsPollInterval = process.env.SQS_POLL_INTERVAL || 1000;
-const kuePollInterval = process.env.KUE_POLL_INTERVAL || 250;
 const metricsInterval = process.env.METRICS_INTERVAL || 300000;
 
-setInterval(() => { checkQueue(); }, kuePollInterval);
 setInterval(() => { pollSQS(); }, sqsPollInterval);
 setInterval(() => { sendMetrics(); }, metricsInterval);
 

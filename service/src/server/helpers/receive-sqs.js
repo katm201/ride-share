@@ -2,8 +2,11 @@ import dotenv from 'dotenv';
 import newrelic from 'newrelic';
 
 import service from '../index';
+import queue from './queue';
 
 dotenv.config();
+
+const { processDrivers } = queue;
 
 const processSQS = (jobType) => {
   const url = `${process.env.SQS_QUEUE_URL}-${jobType}`;
@@ -12,23 +15,18 @@ const processSQS = (jobType) => {
       newrelic.endTransaction();
       if (err) { console.log(err); }
       if (data.Messages) {
-        newrelic.startBackgroundTransaction(`${jobType}/kue/save-job`, 'kue', () => {
-          const jobs = data.Messages.map(message => (service.queue.create(jobType, JSON.parse(message.Body)).priority('medium').attempts(5).save()));
-          Promise.all(jobs)
-            .then(() => {
-              newrelic.endTransaction();
-              data.Messages.forEach((message) => {
-                newrelic.startBackgroundTransaction(`${jobType}/sqs/delete-message`, 'sqs', () => {
-                  service.sqs.deleteMessage({
-                    QueueUrl: url,
-                    ReceiptHandle: message.ReceiptHandle,
-                  }, (error) => {
-                    newrelic.endTransaction();
-                    if (error) { console.log(error); }
-                  });
-                });
+        data.Messages.forEach((message) => {
+          processDrivers(JSON.parse(message.Body), jobType.slice(0, -7), () => {
+            newrelic.startBackgroundTransaction(`${jobType}/sqs/delete-message`, 'sqs', () => {
+              service.sqs.deleteMessage({
+                QueueUrl: url,
+                ReceiptHandle: message.ReceiptHandle,
+              }, (error) => {
+                newrelic.endTransaction();
+                if (error) { console.log(error); }
               });
             });
+          });
         });
       }
     });
