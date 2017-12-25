@@ -12,6 +12,7 @@ import AWS from 'aws-sdk';
 import router from './routes';
 import pollSQS from './helpers/receive-sqs';
 import sendMetrics from './helpers/send-sqs';
+import processQueue from './helpers/process-queue';
 
 events.EventEmitter.prototype._maxListeners = 0;
 
@@ -43,6 +44,7 @@ const metricsInterval = process.env.METRICS_INTERVAL || 300000;
 
 setInterval(() => { pollSQS(); }, sqsPollInterval);
 setInterval(() => { sendMetrics(); }, metricsInterval);
+setInterval(() => { processQueue.processRides(); }, 100);
 
 const port = process.env.PORT || 80;
 

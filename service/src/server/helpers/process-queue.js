@@ -9,55 +9,64 @@ import tables from '../../database/config';
 
 dotenv.config();
 
-const {
-  getNearestDrivers,
-  updateDrivers,
-  addRequest,
-  addJoins,
-  sendDrivers,
-} = newRide;
+// const {
+//   getNearestDrivers,
+//   updateDrivers,
+//   addRequest,
+//   addJoins,
+//   sendDrivers,
+// } = newRide;
 
 const { Driver } = tables;
 
 const { formatNewDriver, changeBooked, updateStatus } = driverUtils;
 
-const processRides = (job, jobType, callback) => {
+const processRides = () => {
   // console.log(job);
-  const dispatchInfo = {
-    ride_id: job.ride_id,
-    start_loc: job.start_loc,
-    drivers: [],
-  };
-  getNearestDrivers(job)
-    .then((drivers) => {
-      // console.log(new Date().toISOString());
-      // console.log(drivers);
-      drivers.forEach((driver) => {
-        // console.log(driver);
-        dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
+  service.queue.process('ride', 1, (job, done) => {
+    // console.log(job.data);
+    newRide(job.data)
+      .then(() => {
+        console.log('done');
+        done();
       });
-      // console.log(dispatchInfo);
-      return updateDrivers(drivers, true);
-    })
-    .then((response) => {
-      console.log(response);
-      return sendDrivers(dispatchInfo);
-    })
-    .then(() => {
-      return addRequest(job);
-    })
-    .then((ids) => {
-      // console.log(ids);
-      const join = {
-        request_id: ids[0],
-        drivers: dispatchInfo.drivers,
-      };
-      return addJoins(join);
-    })
-    .then(() => {
-      callback();
-    })
-    .catch((err) => { console.log(err); });
+    // done();
+  });
+//   const dispatchInfo = {
+//     ride_id: job.ride_id,
+//     start_loc: job.start_loc,
+//     drivers: [],
+//   };
+//   getNearestDrivers(job)
+//     .then((drivers) => {
+//       // console.log(new Date().toISOString());
+//       // console.log(drivers);
+//       drivers.forEach((driver) => {
+//         // console.log(driver);
+//         dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
+//       });
+//       // console.log(dispatchInfo);
+//       return updateDrivers(drivers, true);
+//     })
+//     .then((response) => {
+//       console.log(response);
+//       return sendDrivers(dispatchInfo);
+//     })
+//     .then(() => {
+//       return addRequest(job);
+//     })
+//     .then((ids) => {
+//       // console.log(ids);
+//       const join = {
+//         request_id: ids[0],
+//         drivers: dispatchInfo.drivers,
+//       };
+//       return addJoins(join);
+//     })
+//     .then(() => {
+//       callback();
+//     })
+//     .catch((err) => { console.log(err); });
 };
 
 const model = {
@@ -78,7 +87,7 @@ const processDrivers = (job, jobType, callback) => {
     const info = formatDriver[jobType](job);
     const id = job.driver_id;
     model[jobType](info, id)
-      .then((response) => {
+      .then(() => {
         newrelic.endTransaction();
         callback();
       })

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
+import Promise from 'bluebird';
 
 import db from '../../database/index';
 
@@ -11,9 +12,19 @@ const getNearestDrivers = job => (
   pgKnex('drivers').select('id', st.asText('location')).orderByRaw(`ST_Distance(location, ST_GeometryFromText('${job.start_loc}', 4326)) DESC LIMIT 5`).where({ booked: false, available: true })
 );
 
-const updateDrivers = (drivers, booked) => {
-  const driverUpdates = drivers.map(driver => (pgKnex('drivers').where('id', driver.id).update({ booked })));
-  return Promise.all(driverUpdates);
+const updateDrivers = (drivers) => {
+  return Promise.map(drivers, (driver) => {
+    return pgKnex.transaction((tx) => {
+      return tx
+        .into('drivers')
+        .where('id', driver.id)
+        .update({ booked: true })
+        .transacting(tx);
+    })
+
+  });
+  // const driverUpdates = drivers.map(driver => (pgKnex('drivers').where('id', driver.id).update({ booked })));
+  // return Promise.all(driverUpdates);
 };
 
 const addRequest = (rideInfo) => {
@@ -36,12 +47,36 @@ const sendDrivers = (options) => {
   return axios.post(`${process.env.DISPATCH_URL}/dispatch`, options);
 };
 
-const newRide = {
-  getNearestDrivers,
-  updateDrivers,
-  addRequest,
-  addJoins,
-  sendDrivers,
+const newRide = (job) => {
+  const dispatchInfo = {
+    ride_id: job.ride_id,
+    start_loc: job.start_loc,
+    drivers: [],
+  };
+  return pgKnex.transaction((tx) => {
+    return getNearestDrivers(job)
+      .transacting(tx)
+      .then((drivers) => {
+        drivers.forEach((driver) => {
+          console.log(driver);
+          dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
+        });
+        return updateDrivers(drivers);
+      })
+      .then((response) => {
+        console.log(response);
+      });
+  })
+    .then(() => { console.log('it worked'); })
+    .catch((err) => { console.log('error transacting', err); });
 };
+
+// const newRide = {
+//   getNearestDrivers,
+//   updateDrivers,
+//   addRequest,
+//   addJoins,
+//   sendDrivers,
+// };
 
 export default newRide;
