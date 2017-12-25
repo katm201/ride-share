@@ -32,16 +32,15 @@ const updateDrivers = drivers => (
 
 const addRequest = (rideInfo, tx) => {
   const location = st.geomFromText(rideInfo.start_loc, 4326);
-  return newrelic.startBackgroundTransaction('new-driver/knex/add-request', 'db', () => {
-    return tx
-      .into('requests')
+  return newrelic.startBackgroundTransaction('new-driver/knex/add-request', 'db', () => (
+    tx.into('requests')
       .insert({ ride_id: rideInfo.ride_id, start_loc: location })
       .returning('id')
       .then((ids) => {
         newrelic.endTransaction();
         return ids[0];
-      });
-  });
+      })
+  ));
 };
 
 const addJoins = (dispatchInfo, tx) => {
@@ -51,23 +50,17 @@ const addJoins = (dispatchInfo, tx) => {
       driver_id: driver.driver_id,
     }
   ));
-  return newrelic.startBackgroundTransaction('new-driver/knex/add-joins', 'db', () => {
-    return tx
-      .batchInsert('requests_drivers', joins, 5)
-      .then(() => {
-        return newrelic.endTransaction();
-      });
-  });
-  
+  return newrelic.startBackgroundTransaction('new-driver/knex/add-joins', 'db', () => (
+    tx.batchInsert('requests_drivers', joins, 5)
+      .then(() => (newrelic.endTransaction()))
+  ));
 };
 
 const sendDrivers = (options) => {
   if (process.env.IS_DEV_ENV) { return; }
   return newrelic.startBackgroundTransaction('new-driver/knex/send-drivers', 'axios', () => {
     return axios.post(`${process.env.DISPATCH_URL}/dispatch`, options)
-      .then(() => {
-        return newrelic.endTransaction();
-      });
+      .then(() => (newrelic.endTransaction()));
   });
 };
 
@@ -77,23 +70,19 @@ const newRide = (job) => {
     start_loc: job.start_loc,
     drivers: [],
   };
-  return pgKnex.transaction((tx) => {
-    return newrelic.startBackgroundTransaction('new-driver/knex/nearest-drivers', 'db', () => {
-      return getNearestDrivers(job)
+  return pgKnex.transaction(tx => (
+    newrelic.startBackgroundTransaction('new-driver/knex/nearest-drivers', 'db', () => (
+      getNearestDrivers(job)
         .transacting(tx)
         .then((drivers) => {
-          newrelic.endTransaction()
+          newrelic.endTransaction();
           drivers.forEach((driver) => {
             dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
           });
           return updateDrivers(drivers);
         })
-        .then(() => {
-          return sendDrivers(dispatchInfo);
-        })
-        .then(() => {
-          return addRequest(job, tx);
-        })
+        .then(() => (sendDrivers(dispatchInfo)))
+        .then(() => (addRequest(job, tx)))
         .then((id) => {
           console.log(id);
           const join = {
@@ -104,9 +93,9 @@ const newRide = (job) => {
         })
         .catch((err) => {
           console.log(err);
-        });
-    })
-  });
+        })
+    ))
+  ));
 };
 
 export default newRide;
