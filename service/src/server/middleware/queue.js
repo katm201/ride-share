@@ -1,12 +1,8 @@
 import service from '../index';
 
 const addReqToQueue = (request, response, next) => {
-  const url = `${process.env.SQS_QUEUE_URL}-new-ride`;
-  const params = {
-    QueueUrl: url,
-    MessageBody: JSON.stringify(request.body),
-  };
-  service.sqs.sendMessage(params, (err) => {
+  const job = service.queue.create('ride', request.body).priority('critical').attempts(3).removeOnComplete(true);
+  job.save((err) => {
     if (err) { console.log(err); }
     next();
   });
