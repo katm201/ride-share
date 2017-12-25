@@ -84,7 +84,6 @@ const newRide = (job) => {
         .then(() => (sendDrivers(dispatchInfo)))
         .then(() => (addRequest(job, tx)))
         .then((id) => {
-          console.log(id);
           const join = {
             request_id: id,
             drivers: dispatchInfo.drivers,

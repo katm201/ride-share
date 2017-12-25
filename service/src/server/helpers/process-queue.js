@@ -18,7 +18,6 @@ const processRides = () => {
       newrelic.endTransaction();
       newRide(job.data)
         .then(() => {
-          console.log('done');
           done();
         });
     });
