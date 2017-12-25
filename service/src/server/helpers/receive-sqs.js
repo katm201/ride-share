@@ -2,21 +2,29 @@ import dotenv from 'dotenv';
 import newrelic from 'newrelic';
 
 import service from '../index';
-import queue from './queue';
+import queue from './process-queue';
 
 dotenv.config();
 
-const { processDrivers } = queue;
+const { processDrivers, processRides } = queue;
 
-const processSQS = (jobType) => {
+const processType = {
+  'new-driver': processDrivers,
+  'complete-driver': processDrivers,
+  'update-driver': processDrivers,
+  // 'new-ride': processRides,
+};
+
+const pollQueues = (jobType) => {
   const url = `${process.env.SQS_QUEUE_URL}-${jobType}`;
   newrelic.startBackgroundTransaction(`${jobType}/sqs/get-messages`, 'sqs', () => {
     service.sqs.receiveMessage({ QueueUrl: url, MaxNumberOfMessages: 10 }, (err, data) => {
       newrelic.endTransaction();
       if (err) { console.log(err); }
       if (data.Messages) {
+        // console.log(data.Messages);
         data.Messages.forEach((message) => {
-          processDrivers(JSON.parse(message.Body), jobType.slice(0, -7), () => {
+          processType[jobType](JSON.parse(message.Body), jobType.slice(0, -7), () => {
             newrelic.startBackgroundTransaction(`${jobType}/sqs/delete-message`, 'sqs', () => {
               service.sqs.deleteMessage({
                 QueueUrl: url,
@@ -34,9 +42,10 @@ const processSQS = (jobType) => {
 };
 
 const pollSQS = () => {
-  processSQS('new-driver');
-  processSQS('complete-driver');
-  processSQS('update-driver');
+  pollQueues('new-driver');
+  pollQueues('complete-driver');
+  pollQueues('update-driver');
+  // pollQueues('new-ride');
 };
 
 export default pollSQS;
