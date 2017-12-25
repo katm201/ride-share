@@ -5,8 +5,8 @@
   "scripts": {
     "db:build": "node ./service/build/database/setup/tables.js",
     "db:seed": "node ./service/build/database/setup/seed.js",
-    "db:setup": "npm run build:db && npm run seed:db",
-    "req:ping": "node ./load-test/ping.js",    
+    "db:setup": "npm run db:build && npm run db:seed",
+    "req:ping": "node ./load-test/ping.js",
     "req:new-ride": "node ./load-test/new-ride.js",
     "req:new-driver": "node ./load-test/new-driver.js",
     "req:complete-driver": "node ./load-test/complete-driver.js",
@@ -41,6 +41,7 @@
     "babel-core": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-1": "^6.24.1",
+    "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "bookshelf": "^0.12.0",
     "bookshelf-postgis": "^0.2.2",

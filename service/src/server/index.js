@@ -10,9 +10,9 @@ import events from 'events';
 import AWS from 'aws-sdk';
 
 import router from './routes';
-import checkQueue from './helpers/queue';
 import pollSQS from './helpers/receive-sqs';
 import sendMetrics from './helpers/send-sqs';
+import processQueue from './helpers/process-queue';
 
 events.EventEmitter.prototype._maxListeners = 0;
 
@@ -39,11 +39,13 @@ server.use(bodyParser.json());
 
 server.use('/', router);
 
-const pollInterval = process.env.POLL_INTERVAL || 250;
+const kuePollInterval = process.env.KUE_POLL_INTERVAL || 100;
+const sqsPollInterval = process.env.SQS_POLL_INTERVAL || 1000;
+const metricsInterval = process.env.METRICS_INTERVAL || 300000;
 
-setInterval(() => { checkQueue(); }, pollInterval);
-setInterval(() => { pollSQS(); }, pollInterval * 4);
-setInterval(() => { sendMetrics(); }, 300000);
+setInterval(() => { pollSQS(); }, sqsPollInterval);
+setInterval(() => { sendMetrics(); }, metricsInterval);
+setInterval(() => { processQueue.processRides(); }, kuePollInterval);
 
 const port = process.env.PORT || 80;
 
