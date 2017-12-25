@@ -13,12 +13,14 @@ const { Driver } = tables;
 const { formatNewDriver, changeBooked, updateStatus } = driverUtils;
 
 const processRides = () => {
-  service.queue.process('ride', 1, (job, done) => {
-    newRide(job.data)
-      .then(() => {
-        // console.log('done');
-        done();
-      });
+  newrelic.startBackgroundTransaction('new-rides/kue/process', 'kue', () => {
+    service.queue.process('ride', 1, (job, done) => {
+      newrelic.endTransaction();
+      newRide(job.data)
+        .then(() => {
+          done();
+        });
+    });
   });
 };
 
@@ -35,8 +37,8 @@ const formatDriver = {
   update: updateStatus,
 };
 
-const processDrivers = (job, jobType, callback) => {
-  return newrelic.startBackgroundTransaction(`${jobType}-driver/bookshelf/query`, 'db', () => {
+const processDrivers = (job, jobType, callback) => (
+  newrelic.startBackgroundTransaction(`${jobType}-driver/bookshelf/query`, 'db', () => {
     const info = formatDriver[jobType](job);
     const id = job.driver_id;
     model[jobType](info, id)
@@ -47,8 +49,8 @@ const processDrivers = (job, jobType, callback) => {
       .catch((err) => {
         console.log('error', err);
       });
-  });
-};
+  })
+);
 
 const queue = {
   processDrivers,
