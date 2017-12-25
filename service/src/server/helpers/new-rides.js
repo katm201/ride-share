@@ -1,6 +1,7 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
 import Promise from 'bluebird';
+import newrelic from 'newrelic';
 
 import db from '../../database/index';
 
@@ -15,24 +16,32 @@ const getNearestDrivers = job => (
     .where({ booked: false, available: true })
 );
 
-const updateDrivers = (drivers) => {
-  return Promise.map(drivers, (driver) => {
-    return pgKnex.transaction((tx) => {
-      return tx
-        .into('drivers')
-        .where('id', driver.id)
-        .update({ booked: true })
-        .transacting(tx);
-    });
-  });
-};
+const updateDrivers = drivers => (
+  Promise.map(drivers, driver => (
+    newrelic.startBackgroundTransaction('new-driver/knex/update-driver', 'db', () => (
+      pgKnex.transaction(tx => (
+        tx.into('drivers')
+          .where('id', driver.id)
+          .update({ booked: true })
+          .transacting(tx)
+          .then(() => (newrelic.endTransaction()))
+      ))
+    ))
+  ))
+);
 
 const addRequest = (rideInfo, tx) => {
   const location = st.geomFromText(rideInfo.start_loc, 4326);
-  return tx
-    .into('requests')
-    .insert({ ride_id: rideInfo.ride_id, start_loc: location })
-    .returning('id');
+  return newrelic.startBackgroundTransaction('new-driver/knex/add-request', 'db', () => {
+    return tx
+      .into('requests')
+      .insert({ ride_id: rideInfo.ride_id, start_loc: location })
+      .returning('id')
+      .then((ids) => {
+        newrelic.endTransaction();
+        return ids[0];
+      });
+  });
 };
 
 const addJoins = (dispatchInfo, tx) => {
@@ -42,12 +51,24 @@ const addJoins = (dispatchInfo, tx) => {
       driver_id: driver.driver_id,
     }
   ));
-  return tx.batchInsert('requests_drivers', joins, 5);
+  return newrelic.startBackgroundTransaction('new-driver/knex/add-joins', 'db', () => {
+    return tx
+      .batchInsert('requests_drivers', joins, 5)
+      .then(() => {
+        return newrelic.endTransaction();
+      });
+  });
+  
 };
 
 const sendDrivers = (options) => {
   if (process.env.IS_DEV_ENV) { return; }
-  return axios.post(`${process.env.DISPATCH_URL}/dispatch`, options);
+  return newrelic.startBackgroundTransaction('new-driver/knex/send-drivers', 'axios', () => {
+    return axios.post(`${process.env.DISPATCH_URL}/dispatch`, options)
+      .then(() => {
+        return newrelic.endTransaction();
+      });
+  });
 };
 
 const newRide = (job) => {
@@ -57,32 +78,35 @@ const newRide = (job) => {
     drivers: [],
   };
   return pgKnex.transaction((tx) => {
-    return getNearestDrivers(job)
-      .transacting(tx)
-      .then((drivers) => {
-        drivers.forEach((driver) => {
-          dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
+    return newrelic.startBackgroundTransaction('new-driver/knex/nearest-drivers', 'db', () => {
+      return getNearestDrivers(job)
+        .transacting(tx)
+        .then((drivers) => {
+          newrelic.endTransaction()
+          drivers.forEach((driver) => {
+            dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
+          });
+          return updateDrivers(drivers);
+        })
+        .then(() => {
+          return sendDrivers(dispatchInfo);
+        })
+        .then(() => {
+          return addRequest(job, tx);
+        })
+        .then((id) => {
+          console.log(id);
+          const join = {
+            request_id: id,
+            drivers: dispatchInfo.drivers,
+          };
+          return addJoins(join, tx);
+        })
+        .catch((err) => {
+          console.log(err);
         });
-        return updateDrivers(drivers);
-      })
-      .then((response) => {
-        return sendDrivers(dispatchInfo);
-      })
-      .then(() => {
-        return addRequest(job, tx);
-      })
-      .then((ids) => {
-        const join = {
-          request_id: ids[0],
-          drivers: dispatchInfo.drivers,
-        };
-        return addJoins(join, tx);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  })
-    .catch((err) => { console.log('error transacting', err); });
+    })
+  });
 };
 
 export default newRide;
