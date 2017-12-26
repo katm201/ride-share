@@ -11,7 +11,7 @@ const { pgKnex, st } = db.default;
 const { Driver, Request } = tables.default;
 const { createDrivers, createRequests } = helpers.default;
 
-describe('Inventory database', () => {
+describe('Inventory models', () => {
   const driverTester = createDrivers(1)[0];
   const requestTester = createRequests(1)[0];
 
@@ -35,7 +35,7 @@ describe('Inventory database', () => {
     .catch((err) => {
       console.log(err);
     });
-  }).timeout(5000);
+  }).timeout(10000);
 
   it('Requests model can be used to insert a record into or remove a record from the database', (done) => {
     Request.forge(requestTester).save().then((response) => {
@@ -51,7 +51,9 @@ describe('Inventory database', () => {
     .catch((err) => {
       console.log(err);
     });
-  }).timeout(5000);
+  }).timeout(10000);
 });
+
+// describe('');
 
 /* eslint-enable */

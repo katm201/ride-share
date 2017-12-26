@@ -48,4 +48,28 @@ describe('POST /new_ride', () => {
   })
 });
 
+xdescribe('Process driver job queues', () => {
+  it('process new-driver', (done) => {
+    const jobType = 'new';
+    done();
+  });
+
+  it('process complete-driver', (done) => {
+    const jobType = 'complete';
+    done();
+  });
+
+  it('process update-driver', (done) => {
+    const jobType = 'update';
+    done();
+  });
+});
+
+xdescribe('Process ride job queue', () => {
+  it('process new-ride', (done) => {
+    const jobType = 'new-ride';
+    done();
+  });
+});
+
 /* eslint-enable */
