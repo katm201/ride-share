@@ -5,8 +5,9 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 const axios = require('axios');
 const faker = require('faker');
-// const { server } = require('../service/src/server/index');
-const { processDrivers } = require('../service/src/server/helpers/process-queue');
+
+const { pgKnex, st } = require('../service/src/database/index.js');
+const { processDrivers, formatDriver, model } = require('../service/src/server/helpers/process-queue');
 
 const { uuid } = faker.random;
 
@@ -38,8 +39,6 @@ describe('POST /new_ride', () => {
 
   const createRideRequest = () => ({ start_loc: createLocation(), ride_id: uuid() });
 
-  // console.log(processDrivers);
-
   it('responds with a status code of 201', (done) => {
     axios.post(`${baseUrl}/new_ride`, createRideRequest())
       .then((response) => {
@@ -52,7 +51,7 @@ describe('POST /new_ride', () => {
   })
 });
 
-xdescribe('Process new-driver job queue', () => {
+describe('Process new-driver job queue', () => {
   const jobType = 'new';
   const job = {
     first_name: 'Bobby',
@@ -61,9 +60,50 @@ xdescribe('Process new-driver job queue', () => {
     location: 'POINT(-121.905535 37.586335)',
   };
 
-  xit('calls the model[jobType] function', (done) => {
+  after((done) => {
+    pgKnex('drivers')
+      .where('last_name', 'Tester')
+      .del()
+      .then(() => {
+        done();
+      });
+  });
 
-    done();
+  it('calls the formatDriver.new function', (done) => {
+    const formatSpy = sinon.spy(formatDriver, 'new');
+    
+    processDrivers(job, jobType, () => {
+      expect(formatSpy.callCount).to.equal(1);
+      formatSpy.restore();
+      done();
+    });
+  });
+
+  it('gets an object from the formatDriver.new function', (done) => {
+    const formatSpy = sinon.spy(formatDriver, 'new');
+    const info = {
+      first_name: job.first_name,
+      last_name: job.last_name,
+      joined: job.joined,
+      available: true,
+      booked: false,
+      location: st.geomFromText(job.location, 4326),
+    };
+
+    processDrivers(job, jobType, () => {
+      expect(formatSpy.returnValues[0]).to.be.an('object');
+      formatSpy.restore();
+      done();
+    });
+  });
+
+  it('calls the model.new function', (done) => {
+    const modelSpy = sinon.spy(model, 'new');
+    
+    processDrivers(job, jobType, () => {
+      expect(modelSpy.callCount).to.equal(1);
+      done();
+    });
   });
 });
 
