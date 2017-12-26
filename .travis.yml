@@ -19,6 +19,6 @@ before_script:
 script: node ./service/build/server/index.js & npm run test
 deploy:
   provider: script
-  script: docker login -u $DOCKER_LOGIN -p $DOCKER_PW && docker-compose build && docker push katm201/rideshare:latest
+  script: docker login -u $DOCKER_LOGIN --password-stdin $DOCKER_PW && docker-compose build && docker push katm201/rideshare:latest
   on:
     branch: master

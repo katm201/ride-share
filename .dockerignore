@@ -4,3 +4,4 @@ npm-debug.log
 *.log
 .aws/*
 config.json
+*.rdb
