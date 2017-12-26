@@ -15,14 +15,14 @@ events.EventEmitter.prototype._maxListeners = 0;
 
 const server = express();
 
-const queue = kue.createQueue({
+module.exports.queue = kue.createQueue({
   redis: {
     port: process.env.KUE_REDIS_PORT,
     host: process.env.KUE_REDIS_HOST,
   },
 });
 
-const sqs = new AWS.SQS({
+module.exports.sqs = new AWS.SQS({
   region: 'us-east-2',
   maxRetries: 15,
   apiVersion: '2012-11-05',
@@ -49,8 +49,8 @@ const port = process.env.PORT || 80;
 server.listen(port);
 console.log(`Listening on ${port}`);
 
-module.exports = {
-  queue,
-  server,
-  sqs,
-};
+// module.exports = {
+//   queue,
+//   server,
+//   sqs,
+// };

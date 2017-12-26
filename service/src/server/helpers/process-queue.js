@@ -10,8 +10,6 @@ const { Driver } = tables;
 
 const { formatNewDriver, changeBooked, updateStatus } = driverUtils;
 
-console.log(service);
-
 const processRides = () => {
   newrelic.startBackgroundTransaction('new-rides/kue/process', 'kue', () => {
     service.queue.process('ride', 1, (job, done) => {
