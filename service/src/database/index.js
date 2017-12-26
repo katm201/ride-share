@@ -1,9 +1,8 @@
-import knex from 'knex';
-import bookshelf from 'bookshelf';
-import knexPostgis from 'knex-postgis';
-import dotenv from 'dotenv';
+const knex = require('knex');
+const bookshelf = require('bookshelf');
+const knexPostgis = require('knex-postgis');
 
-dotenv.config();
+require('dotenv').config();
 
 const pgKnex = knex({
   client: 'pg',
@@ -17,10 +16,8 @@ const pgBookshelf = bookshelf(pgKnex);
 
 pgBookshelf.plugin('bookshelf-postgis');
 
-const db = {
+module.exports = {
   pgBookshelf,
   pgKnex,
   st,
 };
-
-export default db;

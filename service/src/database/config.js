@@ -1,4 +1,4 @@
-import db from './index';
+const db = require('./index');
 
 const { pgBookshelf } = db;
 
@@ -16,10 +16,8 @@ const Request = pgBookshelf.Model.extend({
   start_loc: ['geometry'],
 });
 
-const tables = {
+module.exports = {
   Driver,
   Drivers,
   Request,
 };
-
-export default tables;

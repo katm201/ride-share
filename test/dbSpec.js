@@ -3,13 +3,13 @@ const expect = require('chai').expect;
 
 require('dotenv').config();
 
-const db = require('../service/build/database/index.js');
-const tables = require('../service/build/database/config.js');
-const helpers = require('../service/build/database/setup/helpers.js');
+const db = require('../service/src/database/index.js');
+const tables = require('../service/src/database/config.js');
+const helpers = require('../service/src/database/setup/helpers.js');
 
-const { pgKnex, st } = db.default;
-const { Driver, Request } = tables.default;
-const { createDrivers, createRequests } = helpers.default;
+const { pgKnex, st } = db;
+const { Driver, Request } = tables;
+const { createDrivers, createRequests } = helpers;
 
 describe('Inventory models', () => {
   const driverTester = createDrivers(1)[0];
@@ -35,7 +35,7 @@ describe('Inventory models', () => {
     .catch((err) => {
       console.log(err);
     });
-  }).timeout(10000);
+  }).timeout(8000);
 
   it('Requests model can be used to insert a record into or remove a record from the database', (done) => {
     Request.forge(requestTester).save().then((response) => {
@@ -51,7 +51,7 @@ describe('Inventory models', () => {
     .catch((err) => {
       console.log(err);
     });
-  }).timeout(10000);
+  }).timeout(8000);
 });
 
 // describe('');

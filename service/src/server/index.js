@@ -1,31 +1,28 @@
-import dotenv from 'dotenv';
+require('dotenv').config();
+const newrelic = require('newrelic');
+const express = require('express');
+const bodyParser = require('body-parser');
+const kue = require('kue');
+const events = require('events');
+const AWS = require('aws-sdk');
 
-dotenv.config();
-
-import newrelic from 'newrelic';
-import express from 'express';
-import bodyParser from 'body-parser';
-import kue from 'kue';
-import events from 'events';
-import AWS from 'aws-sdk';
-
-import router from './routes';
-import pollSQS from './helpers/receive-sqs';
-import sendMetrics from './helpers/send-sqs';
-import processQueue from './helpers/process-queue';
+const router = require('./routes');
+const pollSQS = require('./helpers/receive-sqs');
+const sendMetrics = require('./helpers/send-sqs');
+const processQueue = require('./helpers/process-queue');
 
 events.EventEmitter.prototype._maxListeners = 0;
 
 const server = express();
 
-const queue = kue.createQueue({
+module.exports.queue = kue.createQueue({
   redis: {
     port: process.env.KUE_REDIS_PORT,
     host: process.env.KUE_REDIS_HOST,
   },
 });
 
-const sqs = new AWS.SQS({
+module.exports.sqs = new AWS.SQS({
   region: 'us-east-2',
   maxRetries: 15,
   apiVersion: '2012-11-05',
@@ -51,11 +48,3 @@ const port = process.env.PORT || 80;
 
 server.listen(port);
 console.log(`Listening on ${port}`);
-
-const service = {
-  queue,
-  server,
-  sqs,
-};
-
-export default service;
