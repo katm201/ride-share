@@ -79,7 +79,7 @@ describe('Process new-driver job queue', () => {
     });
   });
 
-  it('gets an object from the formatDriver.new function', (done) => {
+  it('gets an object with the correct keys and values from the formatDriver.new function', (done) => {
     const formatSpy = sinon.spy(formatDriver, 'new');
     const info = {
       first_name: job.first_name,
@@ -87,11 +87,11 @@ describe('Process new-driver job queue', () => {
       joined: job.joined,
       available: true,
       booked: false,
-      location: st.geomFromText(job.location, 4326),
     };
 
     processDrivers(job, jobType, () => {
       expect(formatSpy.returnValues[0]).to.be.an('object');
+      expect(formatSpy.returnValues[0]).to.include(info);
       formatSpy.restore();
       done();
     });
@@ -102,33 +102,149 @@ describe('Process new-driver job queue', () => {
     
     processDrivers(job, jobType, () => {
       expect(modelSpy.callCount).to.equal(1);
+      modelSpy.restore();
       done();
     });
   });
 });
 
-xdescribe('Process update-driver job queue', () => {
+describe('Process complete-driver job queue', () => {
   const jobType = 'complete';
+  const driver = {
+      first_name: 'Bobby',
+      last_name: 'Tester',
+      joined: '2017-01-11T00:20:21.730Z',
+      location: st.geomFromText('POINT(-121.905535 37.586335)', 4326),
+      available: true,
+      booked: false,
+  };
+
   const job = {
-    driver_id: 1,
     location: 'POINT(-121.905535 37.586335)',
   };
-  
-  it('process complete-driver', (done) => {
-    done();
+
+  before((done) => {
+    pgKnex('drivers')
+      .insert(driver)
+      .returning('id')
+      .then((ids) => {
+        job.driver_id = ids[0];
+        done();
+      });
+  });
+
+  after((done) => {
+    pgKnex('drivers')
+      .where('last_name', 'Tester')
+      .del()
+      .then(() => {
+        done();
+      });
+  });
+
+  it('calls the formatDriver.complete function', (done) => {
+    const formatSpy = sinon.spy(formatDriver, 'complete');
+    
+    processDrivers(job, jobType, () => {
+      expect(formatSpy.callCount).to.equal(1);
+      formatSpy.restore();
+      done();
+    });
+  });
+
+  it('gets an object with the correct keys and values from the formatDriver.complete function', (done) => {
+    const formatSpy = sinon.spy(formatDriver, 'complete');
+    const info = {
+      booked: false,
+    };
+
+    processDrivers(job, jobType, () => {
+      expect(formatSpy.returnValues[0]).to.be.an('object');
+      expect(formatSpy.returnValues[0]).to.include(info);
+      formatSpy.restore();
+      done();
+    });
+  });
+
+  it('calls the model.complete function', (done) => {
+    const modelSpy = sinon.spy(model, 'complete');
+    
+    processDrivers(job, jobType, () => {
+      expect(modelSpy.callCount).to.equal(1);
+      modelSpy.restore();
+      done();
+    });
   });
 });
 
-xdescribe('Process update-driver job queue', () => {
+describe('Process update-driver job queue', () => {
   const jobType = 'update';
+
+  const driver = {
+      first_name: 'Bobby',
+      last_name: 'Tester',
+      joined: '2017-01-11T00:20:21.730Z',
+      location: st.geomFromText('POINT(-121.905535 37.586335)', 4326),
+      available: true,
+      booked: false,
+  };
+
   const job = {
-    driver_id: 1,
     available: false,
     location: 'POINT(-121.905535 37.586335)',
   };
 
-  it('process update-driver', (done) => {
-    done();
+  before((done) => {
+    pgKnex('drivers')
+      .insert(driver)
+      .returning('id')
+      .then((ids) => {
+        job.driver_id = ids[0];
+        done();
+      });
+  });
+
+  after((done) => {
+    pgKnex('drivers')
+      .where('last_name', 'Tester')
+      .del()
+      .then(() => {
+        done();
+      });
+  });
+
+  it('calls the formatDriver.update function', (done) => {
+    const formatSpy = sinon.spy(formatDriver, 'update');
+    
+    processDrivers(job, jobType, () => {
+      expect(formatSpy.callCount).to.equal(1);
+      formatSpy.restore();
+      done();
+    });
+  });
+
+  it('gets an object with the correct keys and values from the formatDriver.update function', (done) => {
+    const formatSpy = sinon.spy(formatDriver, 'update');
+    const info = {
+      booked: false,
+    };
+
+    processDrivers(job, jobType, () => {
+      expect(formatSpy.returnValues[0]).to.be.an('object');
+      expect(formatSpy.returnValues[0]).to.include(info);
+      formatSpy.restore();
+      done();
+    });
+  });
+
+  it('calls the model.update function', (done) => {
+    const modelSpy = sinon.spy(model, 'update');
+    
+    processDrivers(job, jobType, () => {
+      expect(modelSpy.callCount).to.equal(1);
+      modelSpy.restore();
+      done();
+    });
   });
 });
 
