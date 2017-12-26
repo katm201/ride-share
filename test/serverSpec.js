@@ -1,10 +1,16 @@
 /* eslint-disable */
 
 const expect = require('chai').expect;
+const sinon = require('sinon');
 const axios = require('axios');
 const faker = require('faker');
 
+const queue = require('../service/build/server/helpers/process-queue');
+
 const { uuid } = faker.random;
+
+// const { processDrivers } = queue;
+// console.log(queue);
 
 require('dotenv').config();
 
@@ -48,19 +54,42 @@ describe('POST /new_ride', () => {
   })
 });
 
-xdescribe('Process driver job queues', () => {
-  it('process new-driver', (done) => {
-    const jobType = 'new';
-    done();
-  });
+xdescribe('Process new-driver job queue', () => {
+  const jobType = 'new';
+  const job = {
+    first_name: 'Bobby',
+    last_name: 'Tester',
+    joined: '2017-01-11T00:20:21.730Z',
+    location: 'POINT(-121.905535 37.586335)',
+  };
 
-  it('process complete-driver', (done) => {
-    const jobType = 'complete';
+  it('calls the model[jobType] function', (done) => {
+
     done();
   });
+});
+
+xdescribe('Process update-driver job queue', () => {
+  const jobType = 'complete';
+  const job = {
+    driver_id: 1,
+    location: 'POINT(-121.905535 37.586335)',
+  };
+  
+  it('process complete-driver', (done) => {
+    done();
+  });
+});
+
+xdescribe('Process update-driver job queue', () => {
+  const jobType = 'update';
+  const job = {
+    driver_id: 1,
+    available: false,
+    location: 'POINT(-121.905535 37.586335)',
+  };
 
   it('process update-driver', (done) => {
-    const jobType = 'update';
     done();
   });
 });

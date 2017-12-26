@@ -32,7 +32,8 @@
     "eslint-plugin-import": "^2.8.0",
     "mocha": "^4.0.1",
     "nodemon": "^1.12.5",
-    "parallelshell": "^3.0.2"
+    "parallelshell": "^3.0.2",
+    "sinon": "^4.1.3"
   },
   "dependencies": {
     "aws-sdk": "^2.171.0",

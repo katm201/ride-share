@@ -39,6 +39,7 @@ const formatDriver = {
 
 const processDrivers = (job, jobType, callback) => (
   newrelic.startBackgroundTransaction(`${jobType}-driver/bookshelf/query`, 'db', () => {
+    console.log(job);
     const info = formatDriver[jobType](job);
     const id = job.driver_id;
     model[jobType](info, id)
