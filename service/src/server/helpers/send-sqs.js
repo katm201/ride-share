@@ -1,10 +1,8 @@
-import dotenv from 'dotenv';
-import newrelic from 'newrelic';
+require('dotenv').config();
+const newrelic = require('newrelic');
 
-import service from '../index';
-import driverUtils from './drivers';
-
-dotenv.config();
+const service = require('../index');
+const driverUtils = require('./drivers');
 
 const { getUtilization } = driverUtils;
 
@@ -26,4 +24,4 @@ const sendMetrics = () => {
   getUtilization(sendMessage);
 };
 
-export default sendMetrics;
+module.exports = sendMetrics;

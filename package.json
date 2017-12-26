@@ -11,10 +11,8 @@
     "req:new-driver": "node ./load-test/new-driver.js",
     "req:complete-driver": "node ./load-test/complete-driver.js",
     "req:update-driver": "node ./load-test/update-driver.js",
-    "build": "babel ./service/src -d ./service/build",
-    "build:watch": "babel ./service/src -d ./service/build --watch",
-    "start": "npm run build && NODE_ENV=production node ./service/build/server/index.js",
-    "start:dev": "parallelshell 'npm run build:watch' 'nodemon ./service/build/server/index.js'",
+    "start": "NODE_ENV=production node ./service/src/server/index.js",
+    "start:dev": "nodemon ./service/src/server/index.js",
     "test:dev": "./node_modules/.bin/mocha -R nyan",
     "test": "./node_modules/.bin/mocha -R list --exit"
   },
@@ -31,8 +29,7 @@
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
     "mocha": "^4.0.1",
-    "nodemon": "^1.12.5",
-    "parallelshell": "^3.0.2"
+    "nodemon": "^1.12.5"
   },
   "dependencies": {
     "aws-sdk": "^2.171.0",

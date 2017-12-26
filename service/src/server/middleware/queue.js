@@ -1,4 +1,4 @@
-import service from '../index';
+const service = require('../index');
 
 const addReqToQueue = (request, response, next) => {
   const job = service.queue.create('ride', request.body).priority('critical').attempts(3).removeOnComplete(true);
@@ -8,8 +8,6 @@ const addReqToQueue = (request, response, next) => {
   });
 };
 
-const middleware = {
+module.exports = {
   addReqToQueue,
 };
-
-export default middleware;

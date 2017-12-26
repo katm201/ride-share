@@ -1,11 +1,9 @@
-import axios from 'axios';
-import dotenv from 'dotenv';
-import Promise from 'bluebird';
-import newrelic from 'newrelic';
+require('dotenv').config();
+const newrelic = require('newrelic');
+const axios = require('axios');
+const Promise = require('bluebird');
 
-import db from '../../database/index';
-
-dotenv.config();
+const db = require('../../database/index');
 
 const { pgKnex, st } = db;
 
@@ -97,4 +95,4 @@ const newRide = (job) => {
   ));
 };
 
-export default newRide;
+module.exports = newRide;
