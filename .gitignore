@@ -10,7 +10,7 @@ build/
 # node modules
 node_modules/
 
-dump.rdb
+*.rdb
 *.log
 
 .aws/*
