@@ -3,6 +3,7 @@ const expect = require('chai').expect;
 
 require('dotenv').config();
 
+const { server } = require('../service/src/server/index');
 const db = require('../service/src/database/index.js');
 const tables = require('../service/src/database/config.js');
 const helpers = require('../service/src/database/setup/helpers.js');
@@ -14,6 +15,13 @@ const { createDrivers, createRequests } = helpers;
 describe('Inventory models', () => {
   const driverTester = createDrivers(1)[0];
   const requestTester = createRequests(1)[0];
+
+  before(() => {
+    // const { server } = require('../service/src/server/index');
+    // const { pgKnex, st } = require('../service/src/database/index');
+    // const { Driver, Request } = require('../service/src/database/config');
+    // const { createDrivers, createRequests } = require('../service/src/database/setup/helpers');
+  })
 
   after(() => {
     pgKnex.destroy();

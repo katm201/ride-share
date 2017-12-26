@@ -1,18 +1,14 @@
 /* eslint-disable */
+require('dotenv').config();
 
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const axios = require('axios');
 const faker = require('faker');
-
-const queue = require('../service/build/server/helpers/process-queue');
+// const { server } = require('../service/src/server/index');
+const { processDrivers } = require('../service/src/server/helpers/process-queue');
 
 const { uuid } = faker.random;
-
-// const { processDrivers } = queue;
-// console.log(queue);
-
-require('dotenv').config();
 
 const port = process.env.PORT || 80;
 
@@ -42,6 +38,8 @@ describe('POST /new_ride', () => {
 
   const createRideRequest = () => ({ start_loc: createLocation(), ride_id: uuid() });
 
+  // console.log(processDrivers);
+
   it('responds with a status code of 201', (done) => {
     axios.post(`${baseUrl}/new_ride`, createRideRequest())
       .then((response) => {
@@ -63,7 +61,7 @@ xdescribe('Process new-driver job queue', () => {
     location: 'POINT(-121.905535 37.586335)',
   };
 
-  it('calls the model[jobType] function', (done) => {
+  xit('calls the model[jobType] function', (done) => {
 
     done();
   });
