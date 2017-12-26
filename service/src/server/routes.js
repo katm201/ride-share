@@ -1,15 +1,10 @@
-import dotenv from 'dotenv';
+require('dotenv').config();
+const newrelic = require('newrelic');
+const { Router } = require('express');
 
-dotenv.config();
-
-import newrelic from 'newrelic';
-import { Router } from 'express';
-
-import middleware from './middleware/queue';
+const { addReqToQueue } = require('./middleware/queue');
 
 const router = Router();
-
-const { addReqToQueue } = middleware;
 
 router.get('/', (request, response) => {
   newrelic.setTransactionName('get /');
@@ -21,4 +16,4 @@ router.post('/new_ride', addReqToQueue, (request, response) => {
   response.status(201).end();
 });
 
-export default router;
+module.exports = router;

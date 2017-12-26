@@ -1,12 +1,10 @@
-import dotenv from 'dotenv';
-import newrelic from 'newrelic';
+require('dotenv').config();
+const newrelic = require('newrelic');
 
-import service from '../index';
-import newRide from './new-rides';
-import driverUtils from './drivers';
-import tables from '../../database/config';
-
-dotenv.config();
+const service = require('../index');
+const newRide = require('./new-rides');
+const driverUtils = require('./drivers');
+const tables = require('../../database/config');
 
 const { Driver } = tables;
 
@@ -52,9 +50,7 @@ const processDrivers = (job, jobType, callback) => (
   })
 );
 
-const queue = {
+module.exports = {
   processDrivers,
   processRides,
 };
-
-export default queue;

@@ -1,7 +1,6 @@
 /* eslint no-plusplus: ["error", { "allowForLoopAfterthoughts": true }] */
-import faker from 'faker';
-
-import db from '../index';
+const faker = require('faker');
+const db = require('../index');
 
 const { firstName, lastName } = faker.name;
 const { uuid } = faker.random;
@@ -81,12 +80,10 @@ const createJoins = (start, end, driversCount) => {
   return joins;
 };
 
-const helpers = {
+module.exports = {
   createTime,
   createLocation,
   createDrivers,
   createRequests,
   createJoins,
 };
-
-export default helpers;

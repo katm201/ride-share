@@ -1,9 +1,7 @@
-import dotenv from 'dotenv';
-import newrelic from 'newrelic';
+require('dotenv').config();
+const newrelic = require('newrelic');
 
-import db from '../../database/index';
-
-dotenv.config();
+const db = require('../../database/index');
 
 const { pgKnex, st } = db;
 
@@ -72,11 +70,9 @@ const getUtilization = (callback) => {
   });
 };
 
-const driverUtils = {
+module.exports = {
   formatNewDriver,
   changeBooked,
   updateStatus,
   getUtilization,
 };
-
-export default driverUtils;

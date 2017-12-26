@@ -1,4 +1,4 @@
-import db from '../index';
+const db = require('../index');
 
 const { pgKnex } = db;
 

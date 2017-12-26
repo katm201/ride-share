@@ -1,18 +1,15 @@
-import dotenv from 'dotenv';
-import newrelic from 'newrelic';
+require('dotenv').config();
+const newrelic = require('newrelic');
 
-import service from '../index';
-import queue from './process-queue';
+const service = require('../index');
+const queue = require('./process-queue');
 
-dotenv.config();
-
-const { processDrivers, processRides } = queue;
+const { processDrivers } = queue;
 
 const processType = {
   'new-driver': processDrivers,
   'complete-driver': processDrivers,
   'update-driver': processDrivers,
-  // 'new-ride': processRides,
 };
 
 const pollQueues = (jobType) => {
@@ -22,7 +19,6 @@ const pollQueues = (jobType) => {
       newrelic.endTransaction();
       if (err) { console.log(err); }
       if (data.Messages) {
-        // console.log(data.Messages);
         data.Messages.forEach((message) => {
           processType[jobType](JSON.parse(message.Body), jobType.slice(0, -7), () => {
             newrelic.startBackgroundTransaction(`${jobType}/sqs/delete-message`, 'sqs', () => {
@@ -45,7 +41,6 @@ const pollSQS = () => {
   pollQueues('new-driver');
   pollQueues('complete-driver');
   pollQueues('update-driver');
-  // pollQueues('new-ride');
 };
 
-export default pollSQS;
+module.exports = pollSQS;

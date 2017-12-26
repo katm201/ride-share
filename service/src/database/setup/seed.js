@@ -1,7 +1,6 @@
-import prompt from 'prompt';
-
-import db from '../index';
-import helpers from './helpers';
+const prompt = require('prompt');
+const db = require('../index');
+const helpers = require('./helpers');
 
 const { pgKnex } = db;
 

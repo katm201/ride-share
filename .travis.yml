@@ -12,13 +12,12 @@ addons:
     - postgresql-9.6-postgis-2.3
 sudo: true
 before_script:
-- npm run build
 - psql -c 'create database inventory;' -U postgres
 - psql -U postgres -c 'CREATE EXTENSION postgis;' -d inventory
 - npm run db:build
-script: node ./service/build/server/index.js & npm run test
+script: node ./service/src/server/index.js & npm run test
 deploy:
   provider: script
-  script: docker login -u $DOCKER_LOGIN -p $DOCKER_PW && docker-compose build && docker push katm201/rideshare:latest
+  script: docker login -u $DOCKER_LOGIN --password-stdin $DOCKER_PW && docker-compose build && docker push katm201/rideshare:latest
   on:
     branch: master
