@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "driver inventory micro-service for a ride-sharing clone",
   "scripts": {
-    "db:build": "node ./service/build/database/setup/tables.js",
-    "db:seed": "node ./service/build/database/setup/seed.js",
+    "db:build": "node ./service/src/database/setup/tables.js",
+    "db:seed": "node ./service/src/database/setup/seed.js",
     "db:setup": "npm run db:build && npm run db:seed",
     "req:ping": "node ./load-test/ping.js",
     "req:new-ride": "node ./load-test/new-ride.js",
