@@ -15,7 +15,6 @@ before_script:
 - psql -c 'create database inventory;' -U postgres
 - psql -U postgres -c 'CREATE EXTENSION postgis;' -d inventory
 - npm run db:build
-script: node ./service/src/server/index.js & npm run test
 deploy:
   provider: script
   script: docker login -u $DOCKER_LOGIN -p $DOCKER_PW && docker-compose build && docker push katm201/rideshare:latest

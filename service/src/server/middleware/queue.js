@@ -1,3 +1,6 @@
+require('dotenv').config();
+const newrelic = require('newrelic');
+
 const service = require('../index');
 
 const addReqToQueue = (request, response, next) => {

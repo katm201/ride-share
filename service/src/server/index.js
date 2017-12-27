@@ -1,5 +1,6 @@
 require('dotenv').config();
 const newrelic = require('newrelic');
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const kue = require('kue');
@@ -13,7 +14,9 @@ const processQueue = require('./helpers/process-queue');
 
 events.EventEmitter.prototype._maxListeners = 0;
 
-const server = express();
+module.exports.server = express();
+
+const { server } = module.exports;
 
 module.exports.queue = kue.createQueue({
   redis: {
