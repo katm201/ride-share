@@ -11,7 +11,11 @@ pgKnex.schema.createTableIfNotExists('drivers', (table) => {
   table.boolean('booked');
   table.boolean('available');
   table.string('location');
-  table.index('location');
+  table.integer('census_block_id')
+    .references('gid')
+    .inTable('census_blocks')
+    .onDelete('cascade');
+  table.index('census_block_id');
 })
   .then(() => {
     console.log('drivers table created');
@@ -19,6 +23,10 @@ pgKnex.schema.createTableIfNotExists('drivers', (table) => {
       table.increments().primary();
       table.string('ride_id').unique();
       table.string('start_loc');
+      table.integer('census_block_id')
+        .references('gid')
+        .inTable('census_blocks')
+        .onDelete('cascade');
     });
   })
   .then(() => {
