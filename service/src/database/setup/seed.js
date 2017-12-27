@@ -18,34 +18,34 @@ const seed = (totalSections, totalRecords, section = 0) => {
     const totalDrivers = (section + 1) * driversCount;
     const totalRequests = (section + 1) * requestsCount;
 
-    const drivers = createDrivers(driversCount);
+    console.log(`starting section ${section} at ${new Date().toISOString()}`);
 
-    const start = new Date();
-    console.log(`starting insertion, section ${section} at ${start.toISOString()}`);
-
-    return pgKnex.batchInsert('drivers', drivers, 1000)
-      .then(() => {
-        console.log(`${driversCount} drivers saved`);
-        const requests = createRequests(requestsCount);
-        return pgKnex.batchInsert('requests', requests, 1000);
-      })
-      .then(() => {
-        console.log(`${requestsCount} requests saved`);
-        const joinsInfo = createJoins(totalRequests - requestsCount, totalRequests, totalDrivers);
-        return pgKnex.batchInsert('requests_drivers', joinsInfo, 1000);
-      })
-      .then(() => {
-        console.log(`${batchSize} joins saved`);
-        console.log(`${maxCount} total joins saved`);
-        const stop = new Date();
-        console.log(`completed section ${section} at ${stop.toISOString()}`);
-        seed(totalSections, totalRecords, section + 1);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    createDrivers(driversCount, (drivers) => {
+      console.log(`drivers build completed at ${new Date().toISOString()}`);
+      pgKnex.batchInsert('drivers', drivers, 1000)
+        .then(() => {
+          console.log(`${driversCount} drivers saved`);
+          const requests = createRequests(requestsCount);
+          return pgKnex.batchInsert('requests', requests, 1000);
+        })
+        .then(() => {
+          console.log(`${requestsCount} requests saved`);
+          const joinsInfo = createJoins(totalRequests - requestsCount, totalRequests, totalDrivers);
+          return pgKnex.batchInsert('requests_drivers', joinsInfo, 1000);
+        })
+        .then(() => {
+          console.log(`${batchSize} joins saved`);
+          console.log(`${maxCount} total joins saved`);
+          const stop = new Date();
+          console.log(`completed section ${section} at ${stop.toISOString()}`);
+          seed(totalSections, totalRecords, section + 1);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
   } else {
-    return pgKnex.destroy();
+    pgKnex.destroy();
   }
 };
 
