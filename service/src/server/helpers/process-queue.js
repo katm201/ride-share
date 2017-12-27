@@ -2,7 +2,7 @@ require('dotenv').config();
 const newrelic = require('newrelic');
 
 const service = require('../index');
-const newRide = require('./new-rides');
+const { newRide } = require('./new-rides');
 const driverUtils = require('./drivers');
 const tables = require('../../database/config');
 

@@ -95,4 +95,11 @@ const newRide = (job) => {
   ));
 };
 
-module.exports = newRide;
+module.exports = {
+  newRide,
+  sendDrivers,
+  addJoins,
+  addRequest,
+  getNearestDrivers,
+  updateDrivers,
+};

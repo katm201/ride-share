@@ -1,6 +1,7 @@
 /* eslint-disable */
 const expect = require('chai').expect;
-const faker = require('faker').name;
+const { uuid } = require('faker').random;
+const sinon = require('sinon');
 
 require('dotenv').config();
 
@@ -8,6 +9,16 @@ const { server } = require('../service/src/server/index');
 const { pgKnex, st } = require('../service/src/database/index.js');
 const { Driver, Request } = require('../service/src/database/config.js');
 const { createDrivers, createRequests } = require('../service/src/database/setup/helpers.js');
+const newRideQueries = require('../service/src/server/helpers/new-rides');
+
+const {
+  newRide,
+  sendDrivers,
+  updateDrivers,
+  addJoins,
+  addRequest,
+  getNearestDrivers,
+} = newRideQueries;
 
 describe('Inventory models', () => {
   const driverTester = createDrivers(1)[0];
@@ -48,7 +59,7 @@ describe('Inventory models', () => {
   }).timeout(8000);
 });
 
-describe('newRide function', () => {
+xdescribe('newRide function', () => {
   const closeDrivers = createDrivers(5).map((driver) => {
     driver.last_name = 'Tester';
     driver.location = st.geomFromText('POINT(-110.000005 23.000005)', 4326);
@@ -61,8 +72,14 @@ describe('newRide function', () => {
     return driver;
   });
 
+  const job = {
+    start_loc: 'POINT(-110.000005 23.000005)',
+  };
+
   let closeDriverIds = [];
   let farDriverIds = [];
+  const requestIds = [];
+  const joinIds = [];
 
   before((done) => {
     pgKnex.batchInsert('drivers', closeDrivers, 5)
@@ -77,40 +94,95 @@ describe('newRide function', () => {
       });
   });
 
-  xit('calls the getNearestDrivers query', (done) => {
-    done()
+  beforeEach(() => {
+    job.ride_id = uuid();
+  });
+
+  it('calls the getNearestDrivers query', (done) => {
+    const nearestSpy = sinon.spy(getNearestDrivers);
+
+    newRide(job)
+      .then(() => {
+        console.log(nearestSpy.callCount);
+        expect(nearestSpy.callCount).to.equal(1);
+        nearestSpy.restore();
+        done();
+      })
+      .catch(done);
   });
 
   xit('has a promise returned from the getNearestDrivers query', (done) => {
-    done()
+    done();
   });
 
   xit('receives the closest 5 drivers from the getNearestDrivers query', (done) => {
-    done()
+    done();
   });
 
-  xit('calls the updateDrivers query', (done) => {
-    done()
+  it('calls the updateDrivers query', (done) => {
+    const updateSpy = sinon.spy(newRideQueries, 'updateDrivers');
+
+    newRide(job)
+      .then(() => {
+        expect(updateSpy.callCount).to.equal(1);
+        updateSpy.restore();
+        done();
+      })
+      .catch(done);
   });
 
   xit('has a promise returned from the updateDrivers query', (done) => {
-    done()
+    done();
   });
 
-  xit('calls the addJoins query', (done) => {
-    done()
+  it('calls the addRequest query', (done) => {
+    const addRequestSpy = sinon.spy(newRideQueries, 'addRequest');
+
+    newRide(job)
+      .then(() => {
+        expect(addRequestSpy.callCount).to.equal(1);
+        addRequestSpy.restore();
+        done();
+      })
+      .catch(done);
+  });
+
+  xit('has a promise returned from the addRequest query', (done) => {
+    done();
+  });
+
+  xit('receives the request id from the addRequest query', (done) => {
+    done();
+  });
+
+  it('calls the addJoins query', (done) => {
+    const addJoinsSpy = sinon.spy(newRideQueries, 'addJoins');
+
+    newRide(job)
+      .then(() => {
+        expect(addJoinsSpy.callCount).to.equal(1);
+        addJoinsSpy.restore();
+        done();
+      })
+      .catch(done);
   });
 
   xit('has a promise returned from the addJoins query', (done) => {
-    done()
+    done();
   });
 
-  xit('calls the sendDrivers function', (done) => {
-    done()
+  it('calls the sendDrivers function', (done) => {
+    const sendDriversSpy = sinon.spy(newRideQueries, 'sendDrivers');
+
+    newRide(job)
+      .then(() => {
+        expect(sendDriversSpy.callCount).to.equal(1);
+        sendDriversSpy.restore();
+        done();
+      })
+      .catch(done);
   });
 
 });
-
-// describe('');
 
 /* eslint-enable */
