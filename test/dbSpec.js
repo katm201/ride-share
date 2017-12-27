@@ -20,7 +20,7 @@ const {
   getNearestDrivers,
 } = newRideQueries;
 
-describe('Inventory models', () => {
+xdescribe('Inventory models', () => {
   const driverTester = createDrivers(1)[0];
   const requestTester = createRequests(1)[0];
 
@@ -59,7 +59,7 @@ describe('Inventory models', () => {
   }).timeout(8000);
 });
 
-xdescribe('newRide function', () => {
+describe('newRide function', () => {
   const closeDrivers = createDrivers(5).map((driver) => {
     driver.last_name = 'Tester';
     driver.location = st.geomFromText('POINT(-110.000005 23.000005)', 4326);
@@ -103,7 +103,6 @@ xdescribe('newRide function', () => {
 
     newRide(job)
       .then(() => {
-        console.log(nearestSpy.callCount);
         expect(nearestSpy.callCount).to.equal(1);
         nearestSpy.restore();
         done();
@@ -120,7 +119,7 @@ xdescribe('newRide function', () => {
   });
 
   it('calls the updateDrivers query', (done) => {
-    const updateSpy = sinon.spy(newRideQueries, 'updateDrivers');
+    const updateSpy = sinon.spy(updateDrivers);
 
     newRide(job)
       .then(() => {
@@ -136,7 +135,7 @@ xdescribe('newRide function', () => {
   });
 
   it('calls the addRequest query', (done) => {
-    const addRequestSpy = sinon.spy(newRideQueries, 'addRequest');
+    const addRequestSpy = sinon.spy(addRequest);
 
     newRide(job)
       .then(() => {
@@ -156,7 +155,7 @@ xdescribe('newRide function', () => {
   });
 
   it('calls the addJoins query', (done) => {
-    const addJoinsSpy = sinon.spy(newRideQueries, 'addJoins');
+    const addJoinsSpy = sinon.spy(addJoins);
 
     newRide(job)
       .then(() => {
@@ -172,7 +171,7 @@ xdescribe('newRide function', () => {
   });
 
   it('calls the sendDrivers function', (done) => {
-    const sendDriversSpy = sinon.spy(newRideQueries, 'sendDrivers');
+    const sendDriversSpy = sinon.spy(sendDrivers);
 
     newRide(job)
       .then(() => {
