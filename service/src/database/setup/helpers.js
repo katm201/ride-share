@@ -7,11 +7,13 @@ const { uuid } = faker.random;
 
 const { st } = db;
 
+// -122.512539,37.709636,-122.387999,37.808029
+
 const createLocation = () => {
-  const minLog = -122.75;
-  const minLat = 36.8;
-  const lat = (minLat + Math.random()).toPrecision(8);
-  const log = (minLog + Math.random()).toPrecision(9);
+  const minLog = -122.512539;
+  const minLat = 37.709636;
+  const lat = (minLat + (Math.random() / 8)).toPrecision(8);
+  const log = (minLog + (Math.random() / 10)).toPrecision(9);
   return `POINT(${log} ${lat})`;
 };
 
