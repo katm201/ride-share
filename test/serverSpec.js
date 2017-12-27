@@ -248,11 +248,4 @@ describe('Process update-driver job queue', () => {
   });
 });
 
-xdescribe('Process ride job queue', () => {
-  it('process new-ride', (done) => {
-    const jobType = 'new-ride';
-    done();
-  });
-});
-
 /* eslint-enable */
