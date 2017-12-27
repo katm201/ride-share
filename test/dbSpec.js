@@ -59,7 +59,7 @@ xdescribe('Inventory models', () => {
   }).timeout(8000);
 });
 
-describe('newRide function', () => {
+xdescribe('newRide function', () => {
   const closeDrivers = createDrivers(5).map((driver) => {
     driver.last_name = 'Tester';
     driver.location = st.geomFromText('POINT(-110.000005 23.000005)', 4326);
