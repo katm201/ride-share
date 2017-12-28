@@ -10,7 +10,7 @@ const { pgKnex, st } = db;
 const getCensusBlock = job => (
   pgKnex('census_blocks')
     .select('gid')
-    .whereRaw(`ST_Intersects(${job.start_loc}, geom) = ?`, [true])
+    .whereRaw(`ST_Intersects(ST_GeometryFromText('${job.start_loc}', 4326), geom) = ?`, [true])
     .returning('gid')
     .then(ids => (ids[0].gid))
     .catch(() => (null))
@@ -48,7 +48,7 @@ const addRequest = (rideInfo, tx) => {
   const location = st.geomFromText(rideInfo.start_loc, 4326);
   return newrelic.startBackgroundTransaction('new-rides/knex/add-request', 'db', () => (
     tx.into('requests')
-      .insert({ ride_id: rideInfo.ride_id, start_loc: location })
+      .insert({ ride_id: rideInfo.ride_id, start_loc: location, census_block_id: rideInfo.gid })
       .returning('id')
       .then((ids) => {
         newrelic.endTransaction();
@@ -89,6 +89,8 @@ const newRide = (job) => {
       getCensusBlock(job)
         .then((gid) => {
           newrelic.endTransaction();
+          const newJob = job;
+          newJob.gid = gid;
           return getNearestDrivers(job, gid, tx);
         })
         .then((drivers) => {
