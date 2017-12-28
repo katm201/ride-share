@@ -1,8 +1,10 @@
+require('dotenv').config();
+
 const AWS = require('aws-sdk');
-const faker = require('faker');
+const { firstName, lastName } = require('faker').name;
 const prompt = require('prompt');
 
-require('dotenv').config();
+const { createLocation } = require('../service/src/database/setup/helpers');
 
 const sqs = new AWS.SQS({
   region: 'us-east-2',
@@ -13,16 +15,6 @@ const sqs = new AWS.SQS({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   }),
 });
-
-const { firstName, lastName } = faker.name;
-
-const createLocation = () => {
-  const minLog = -122.75;
-  const minLat = 36.8;
-  const lat = (minLat + Math.random()).toPrecision(8);
-  const log = (minLog + Math.random()).toPrecision(9);
-  return `POINT(${log} ${lat})`;
-};
 
 const createTime = (start = 1483257600000) => {
   const lastMs = 1491030000000;

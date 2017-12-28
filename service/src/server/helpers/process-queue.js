@@ -8,7 +8,12 @@ const tables = require('../../database/config');
 
 const { Driver } = tables;
 
-const { formatNewDriver, changeBooked, updateStatus } = driverUtils;
+const {
+  formatNewDriver,
+  changeBooked,
+  updateStatus,
+  getCensusBlock,
+} = driverUtils;
 
 const processRides = () => {
   newrelic.startBackgroundTransaction('new-rides/kue/process', 'kue', () => {
@@ -37,16 +42,23 @@ const formatDriver = {
 };
 
 const processDrivers = (job, jobType, callback) => (
-  newrelic.startBackgroundTransaction(`${jobType}-driver/bookshelf/query`, 'db', () => {
-    const info = formatDriver[jobType](job);
-    const id = job.driver_id;
-    model[jobType](info, id)
-      .then(() => {
+  newrelic.startBackgroundTransaction(`${jobType}-driver/knex/census-block`, 'db', () => {
+    getCensusBlock(job.location)
+      .then((gid) => {
         newrelic.endTransaction();
-        callback();
-      })
-      .catch((err) => {
-        console.log('error', err);
+        return newrelic.startBackgroundTransaction(`${jobType}-driver/bookshelf/query`, 'db', () => {
+          const info = formatDriver[jobType](job);
+          const id = job.driver_id;
+          info.census_block_id = gid;
+          model[jobType](info, id)
+            .then(() => {
+              newrelic.endTransaction();
+              callback();
+            })
+            .catch((err) => {
+              console.log('error', err);
+            });
+        });
       });
   })
 );

@@ -3,18 +3,8 @@ const newrelic = require('newrelic');
 const axios = require('axios');
 const Promise = require('bluebird');
 
-const db = require('../../database/index');
-
-const { pgKnex, st } = db;
-
-const getCensusBlock = job => (
-  pgKnex('census_blocks')
-    .select('gid')
-    .whereRaw(`ST_Intersects(ST_GeometryFromText('${job.start_loc}', 4326), geom) = ?`, [true])
-    .returning('gid')
-    .then(ids => (ids[0].gid))
-    .catch(() => (null))
-);
+const { pgKnex, st } = require('../../database/index');
+const { getCensusBlock } = require('./drivers');
 
 const getNearestDrivers = (job, gid, tx) => (
   newrelic.startBackgroundTransaction('new-rides/knex/nearest-drivers', 'db', () => (
@@ -86,7 +76,7 @@ const newRide = (job) => {
   };
   return pgKnex.transaction(tx => (
     newrelic.startBackgroundTransaction('new-rides/knex/census-block', 'db', () => (
-      getCensusBlock(job)
+      getCensusBlock(job.start_loc)
         .then((gid) => {
           newrelic.endTransaction();
           const newJob = job;
