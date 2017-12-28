@@ -15,8 +15,8 @@
     "req:update-driver": "node ./load-test/update-driver.js",
     "start": "NODE_ENV=production node ./service/src/server/index.js",
     "start:dev": "nodemon ./service/src/server/index.js",
-    "test:dev": "./node_modules/.bin/mocha -R nyan",
-    "test": "./node_modules/.bin/mocha -R list --exit"
+    "test:dev": "./node_modules/.bin/mocha -t 7000 -R nyan",
+    "test": "./node_modules/.bin/mocha -t 7000 -R list --exit"
   },
   "repository": {
     "type": "git",

@@ -20,9 +20,16 @@ const {
   getNearestDrivers,
 } = newRideQueries;
 
-xdescribe('Inventory models', () => {
-  const driverTester = createDrivers(1)[0];
+describe('Inventory models', () => {
+  let driverTester; // = createDrivers(1)[0];
   const requestTester = createRequests(1)[0];
+
+  before((done) => {
+    createDrivers(1, (drivers) => {
+      driverTester = drivers[0];
+      done();
+    });
+  });
 
   it('have a Driver model that can be used to insert a record into or remove a record from the database', (done) => {
     Driver.forge(driverTester).save().then((response) => {
@@ -59,6 +66,7 @@ xdescribe('Inventory models', () => {
   }).timeout(8000);
 });
 
+/*
 xdescribe('newRide function', () => {
   const closeDrivers = createDrivers(5).map((driver) => {
     driver.last_name = 'Tester';
@@ -183,5 +191,6 @@ xdescribe('newRide function', () => {
   });
 
 });
+*/
 
 /* eslint-enable */
