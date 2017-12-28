@@ -69,6 +69,7 @@ const createRequests = (end) => {
     const info = {
       ride_id: uuid(),
       start_loc: st.geomFromText(location, 4326),
+      census_block_id: Math.floor((Math.random() * 196) + 1),
     };
 
     requests.push(info);
