@@ -46,19 +46,19 @@ const processDrivers = (job, jobType, callback) => (
     getCensusBlock(job.location)
       .then((gid) => {
         newrelic.endTransaction();
-        return newrelic.startBackgroundTransaction(`${jobType}-driver/bookshelf/query`, 'db', () => {
-          const info = formatDriver[jobType](job);
-          const id = job.driver_id;
-          info.census_block_id = gid;
+        const info = formatDriver[jobType](job);
+        const id = job.driver_id;
+        info.census_block_id = gid;
+        return newrelic.startBackgroundTransaction(`${jobType}-driver/bookshelf/query`, 'db', () => (
           model[jobType](info, id)
-            .then(() => {
-              newrelic.endTransaction();
-              callback();
-            })
-            .catch((err) => {
-              console.log('error', err);
-            });
-        });
+        ));
+      })
+      .then(() => {
+        newrelic.endTransaction();
+        callback();
+      })
+      .catch((err) => {
+        console.log('error', err);
       });
   })
 );
