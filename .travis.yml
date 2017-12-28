@@ -10,14 +10,10 @@ addons:
   apt:
     packages:
     - postgresql-9.6-postgis-2.3
-    - pgadmin3
-    - postgresql-contrib-9.6
 sudo: true
 before_script:
 - psql -c 'create database inventory;' -U postgres
 - psql -U postgres -c 'CREATE EXTENSION postgis;' -d inventory
-- locate shp2pgsql
-- type shp2pgsql
 - npm run db:add-blocks
 - npm run db:build
 deploy:
