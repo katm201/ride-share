@@ -6,4 +6,7 @@ services:
     build: ./
     ports:
       - '80:80'
-
+    depends_on:
+      - postgis-b
+  postgis-b:
+    image: mdillon/postgis:10-alpine
