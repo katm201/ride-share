@@ -1,4 +1,4 @@
-FROM node:9.3
+FROM node:9.3-alpine
 
 RUN mkdir -p /container/src
 

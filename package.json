@@ -5,7 +5,7 @@
   "scripts": {
     "db:add-blocks": "psql -U postgres -d inventory -f $(pwd)/service/data/2010_sf_census_tracts/SHAPEFILE.sql",
     "db:add-blocks-auto": "shp2pgsql -I -s 4326 $(pwd)/service/data/2010_sf_census_tracts/geo_export_c0e33c61-c33d-4f06-b4f6-0d12c4f9156f.shp census_blocks | psql -U postgres -d inventory",
-    "db:add-blocks-docker": "node ./service/src/database/setup/census-blocks.js",
+    "db:seed-blocks": "node ./service/src/database/setup/census-blocks.js",
     "db:build": "node ./service/src/database/setup/tables.js",
     "db:seed": "node ./service/src/database/setup/seed.js",
     "db:setup": "npm run db:build && npm run db:seed",
