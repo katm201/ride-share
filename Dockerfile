@@ -8,7 +8,7 @@ COPY . /container/src
 
 RUN npm install --production
 
-RUN sudo apt-get install postgresql-9.6
+RUN apt-get update && apt-get install -y postgresql-9.6
 
 EXPOSE 80
 
