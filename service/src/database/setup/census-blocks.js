@@ -38,7 +38,8 @@ const formatData = (data) => {
   return inserts;
 };
 
-fs.readFile(path.join(__dirname, 'shapefile.sql'), 'utf8', (err, data) => {
+fs.readFile(path.join(__dirname, 'SHAPEFILE.sql'), 'utf8', (err, data) => {
+  console.log(data);
   const inserts = formatData(data);
 
   pgKnex.batchInsert('census_blocks', inserts, 1000)
