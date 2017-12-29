@@ -40,16 +40,25 @@ const formatData = (data) => {
 
 fs.readFile(path.join(__dirname, 'SHAPEFILE.sql'), 'utf8', (err, data) => {
   console.log(data);
-  const inserts = formatData(data);
+  // const inserts = formatData(data);
 
-  pgKnex.batchInsert('census_blocks', inserts, 1000)
+  // pgKnex.batchInsert('census_blocks', inserts, 1000)
+  //   .then((response) => {
+  //     console.log(response);
+  //     console.log('complete');
+  //     pgKnex.destroy();
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //   });
+  pgKnex.raw(data)
     .then((response) => {
-      console.log(response);
-      console.log('complete');
+      console.log(response, 'complete');
       pgKnex.destroy();
     })
     .catch((err) => {
       console.log(err);
+      pgKnex.destroy();
     });
 });
 
