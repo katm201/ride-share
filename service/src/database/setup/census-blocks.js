@@ -8,7 +8,6 @@ const pgKnex = knex({
   client: 'pg',
   connection: process.env.PG_CONNECTION_STRING,
   pool: { min: 0, max: 10 },
-  multipleStatements: true,
 });
 
 fs.readFile(path.join(__dirname, 'shapefile.sql'), 'utf8', (err, data) => {
