@@ -2,15 +2,7 @@ require('dotenv').config();
 const newrelic = require('newrelic');
 
 const service = require('../index');
-const queue = require('./process-queue');
-
-const { processDrivers } = queue;
-
-const processType = {
-  'new-driver': processDrivers,
-  'complete-driver': processDrivers,
-  'update-driver': processDrivers,
-};
+const { processDrivers } = require('./process-queue');
 
 const pollQueues = (jobType) => {
   const url = `${process.env.SQS_QUEUE_URL}-${jobType}`;
@@ -20,7 +12,7 @@ const pollQueues = (jobType) => {
       if (err) { console.log(err); }
       if (data.Messages) {
         data.Messages.forEach((message) => {
-          processType[jobType](JSON.parse(message.Body), jobType.slice(0, -7), () => {
+          processDrivers(JSON.parse(message.Body), jobType.slice(0, -7), () => {
             newrelic.startBackgroundTransaction(`${jobType}/sqs/delete-message`, 'sqs', () => {
               service.sqs.deleteMessage({
                 QueueUrl: url,

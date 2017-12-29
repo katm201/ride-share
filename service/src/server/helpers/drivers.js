@@ -35,12 +35,23 @@ const updateStatus = (job) => {
   return base;
 };
 
+const getCensusBlock = location => (
+  pgKnex('census_blocks')
+    .select('gid')
+    .whereRaw(`ST_Intersects(${st.geomFromText(location, 4326)}, geom) = ?`, [true])
+    .returning('gid')
+    .then(ids => (ids[0].gid))
+    .catch(() => (null))
+);
+
 const getTotalCount = () => (pgKnex('drivers').count('id'));
 
 const getBookedCount = () => (pgKnex('drivers').count('id').where({ booked: true }));
 
 const getUnavailableCount = () => (pgKnex('drivers').count('id').where({ available: false }));
 
+
+// TODO: refactor into cleaner/less pyramid-y structure
 const getUtilization = (callback) => {
   const utilization = {};
   newrelic.startBackgroundTransaction('driver-util/knex/total', 'db', () => {
@@ -75,4 +86,5 @@ module.exports = {
   changeBooked,
   updateStatus,
   getUtilization,
+  getCensusBlock,
 };

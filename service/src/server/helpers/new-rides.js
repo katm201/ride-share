@@ -3,20 +3,26 @@ const newrelic = require('newrelic');
 const axios = require('axios');
 const Promise = require('bluebird');
 
-const db = require('../../database/index');
+const { pgKnex, st } = require('../../database/index');
+const { getCensusBlock } = require('./drivers');
 
-const { pgKnex, st } = db;
-
-const getNearestDrivers = job => (
-  pgKnex('drivers')
-    .select('id', st.asText('location'))
-    .orderByRaw(`ST_Distance(location, ST_GeometryFromText('${job.start_loc}', 4326)) DESC LIMIT 5`)
-    .where({ booked: false, available: true })
+const getNearestDrivers = (job, gid, tx) => (
+  newrelic.startBackgroundTransaction('new-rides/knex/nearest-drivers', 'db', () => (
+    pgKnex.into('drivers')
+      .select('id', st.asText('location'))
+      .orderByRaw(`ST_Distance(location, ${st.geomFromText(job.start_loc, 4326)}) LIMIT 5`)
+      .where({ booked: false, available: true, census_block_id: gid })
+      .transacting(tx)
+      .then((drivers) => {
+        newrelic.endTransaction();
+        return drivers;
+      })
+  ))
 );
 
 const updateDrivers = drivers => (
   Promise.map(drivers, driver => (
-    newrelic.startBackgroundTransaction('new-driver/knex/update-driver', 'db', () => (
+    newrelic.startBackgroundTransaction('new-rides/knex/update-driver', 'db', () => (
       pgKnex.transaction(tx => (
         tx.into('drivers')
           .where('id', driver.id)
@@ -30,9 +36,9 @@ const updateDrivers = drivers => (
 
 const addRequest = (rideInfo, tx) => {
   const location = st.geomFromText(rideInfo.start_loc, 4326);
-  return newrelic.startBackgroundTransaction('new-driver/knex/add-request', 'db', () => (
+  return newrelic.startBackgroundTransaction('new-rides/knex/add-request', 'db', () => (
     tx.into('requests')
-      .insert({ ride_id: rideInfo.ride_id, start_loc: location })
+      .insert({ ride_id: rideInfo.ride_id, start_loc: location, census_block_id: rideInfo.gid })
       .returning('id')
       .then((ids) => {
         newrelic.endTransaction();
@@ -48,7 +54,7 @@ const addJoins = (dispatchInfo, tx) => {
       driver_id: driver.driver_id,
     }
   ));
-  return newrelic.startBackgroundTransaction('new-driver/knex/add-joins', 'db', () => (
+  return newrelic.startBackgroundTransaction('new-rides/knex/add-joins', 'db', () => (
     tx.batchInsert('requests_drivers', joins, 5)
       .then(() => (newrelic.endTransaction()))
   ));
@@ -56,7 +62,7 @@ const addJoins = (dispatchInfo, tx) => {
 
 const sendDrivers = (options) => {
   if (process.env.IS_DEV_ENV) { return; }
-  return newrelic.startBackgroundTransaction('new-driver/knex/send-drivers', 'axios', () => {
+  return newrelic.startBackgroundTransaction('new-rides/knex/send-drivers', 'axios', () => {
     return axios.post(`${process.env.DISPATCH_URL}/dispatch`, options)
       .then(() => (newrelic.endTransaction()));
   });
@@ -69,11 +75,15 @@ const newRide = (job) => {
     drivers: [],
   };
   return pgKnex.transaction(tx => (
-    newrelic.startBackgroundTransaction('new-driver/knex/nearest-drivers', 'db', () => (
-      getNearestDrivers(job)
-        .transacting(tx)
-        .then((drivers) => {
+    newrelic.startBackgroundTransaction('new-rides/knex/census-block', 'db', () => (
+      getCensusBlock(job.start_loc)
+        .then((gid) => {
           newrelic.endTransaction();
+          const newJob = job;
+          newJob.gid = gid;
+          return getNearestDrivers(job, gid, tx);
+        })
+        .then((drivers) => {
           drivers.forEach((driver) => {
             dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
           });

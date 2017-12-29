@@ -64,9 +64,15 @@ describe('Process new-driver job queue', () => {
     pgKnex('drivers')
       .where('last_name', 'Tester')
       .del()
-      .then(() => {
+      .returning('id')
+      .then((response) => {
+        console.log(response);
         done();
-      });
+      })
+      .catch((err) => {
+        console.log(err);
+        done();
+      })
   });
 
   it('calls the formatDriver.new function', (done) => {

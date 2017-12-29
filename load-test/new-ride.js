@@ -1,18 +1,10 @@
-const axios = require('axios');
-const faker = require('faker');
-const prompt = require('prompt');
-
 require('dotenv').config();
 
-const { uuid } = faker.random;
+const axios = require('axios');
+const { uuid } = require('faker').random;
+const prompt = require('prompt');
 
-const createLocation = () => {
-  const minLog = -122.75;
-  const minLat = 36.8;
-  const lat = (minLat + Math.random()).toPrecision(8);
-  const log = (minLog + Math.random()).toPrecision(9);
-  return `POINT(${log} ${lat})`;
-};
+const { createLocation } = require('../service/src/database/setup/helpers');
 
 const createRideRequest = () => ({ start_loc: createLocation(), ride_id: uuid() });
 

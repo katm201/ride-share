@@ -14,6 +14,7 @@ sudo: true
 before_script:
 - psql -c 'create database inventory;' -U postgres
 - psql -U postgres -c 'CREATE EXTENSION postgis;' -d inventory
+- npm run db:add-blocks
 - npm run db:build
 deploy:
   provider: script
