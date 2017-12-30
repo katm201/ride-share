@@ -18,7 +18,9 @@
     "start": "NODE_ENV=production node ./service/src/server/index.js",
     "start:dev": "nodemon ./service/src/server/index.js",
     "test:dev": "./node_modules/.bin/mocha -t 7000 -R nyan",
-    "test": "./node_modules/.bin/mocha -t 7000 -R list --exit"
+    "test": "./node_modules/.bin/mocha -t 7000 -R list --exit",
+    "coverage:db": "node ./node_modules/.bin/istanbul cover test/dbSpec.js",
+    "coverage:server": "node ./node_modules/.bin/istanbul cover test/dbSpec.js"
   },
   "repository": {
     "type": "git",
@@ -29,12 +31,14 @@
   "homepage": "https://github.com/katm201/ride-share#readme",
   "devDependencies": {
     "chai": "^4.1.2",
+    "codecov": "^3.0.0",
     "eslint": "^4.13.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
+    "istanbul": "^0.4.5",
     "mocha": "^4.0.1",
-    "sinon": "^4.1.3",
-    "nodemon": "^1.12.5"
+    "nodemon": "^1.12.5",
+    "sinon": "^4.1.3"
   },
   "dependencies": {
     "aws-sdk": "^2.171.0",
