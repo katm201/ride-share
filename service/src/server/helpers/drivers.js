@@ -44,41 +44,58 @@ const getCensusBlock = location => (
     .catch(() => (null))
 );
 
-const getTotalCount = () => (pgKnex('drivers').count('id'));
-
-const getBookedCount = () => (pgKnex('drivers').count('id').where({ booked: true }));
-
-const getUnavailableCount = () => (pgKnex('drivers').count('id').where({ available: false }));
-
-
-// TODO: refactor into cleaner/less pyramid-y structure
-const getUtilization = (callback) => {
-  const utilization = {};
-  newrelic.startBackgroundTransaction('driver-util/knex/total', 'db', () => {
-    getTotalCount()
+const getTotalCount = () => (
+  newrelic.startBackgroundTransaction('driver-util/knex/total', 'db', () => (
+    pgKnex('drivers').count('id')
       .then((totalDrivers) => {
         newrelic.endTransaction();
-        utilization.total = parseInt(totalDrivers[0].count, 10);
-        newrelic.startBackgroundTransaction('driver-util/knex/booked', 'db', () => {
-          getBookedCount()
-            .then((bookedDrivers) => {
-              newrelic.endTransaction();
-              utilization.booked = parseInt(bookedDrivers[0].count, 10);
-              newrelic.startBackgroundTransaction('driver-util/knex/unavailable', 'db', () => {
-                getUnavailableCount()
-                  .then((unavailableDrivers) => {
-                    newrelic.endTransaction();
-                    utilization.unavailable = parseInt(unavailableDrivers[0].count, 10);
-                    callback(utilization);
-                  })
-                  .catch((err) => { console.log(err); });
-              });
-            })
-            .catch((err) => { console.log(err); });
-        });
+        return parseInt(totalDrivers[0].count, 10);
       })
-      .catch((err) => { console.log(err); });
-  });
+      .catch((err) => { console.log(err); })
+  ))
+);
+
+const getBookedCount = () => (
+  newrelic.startBackgroundTransaction('driver-util/knex/booked', 'db', () => (
+    pgKnex('drivers')
+      .count('id')
+      .where({ booked: true })
+      .then((bookedDrivers) => {
+        newrelic.endTransaction();
+        return parseInt(bookedDrivers[0].count, 10);
+      })
+      .catch((err) => { console.log(err); })
+  ))
+);
+
+const getUnavailableCount = () => (
+  newrelic.startBackgroundTransaction('driver-util/knex/unavailable', 'db', () => (
+    pgKnex('drivers')
+      .count('id')
+      .where({ available: false })
+      .then((unavailableDrivers) => {
+        newrelic.endTransaction();
+        return parseInt(unavailableDrivers[0].count, 10);
+      })
+      .catch((err) => { console.log(err); })
+  ))
+);
+
+const getUtilization = (callback) => {
+  const utilization = {};
+  getTotalCount()
+    .then((totalDrivers) => {
+      utilization.total = totalDrivers;
+      return getBookedCount();
+    })
+    .then((bookedDrivers) => {
+      utilization.booked = bookedDrivers;
+      return getUnavailableCount();
+    })
+    .then((unavailableDrivers) => {
+      utilization.unavailable = unavailableDrivers;
+      callback(utilization);
+    });
 };
 
 module.exports = {
