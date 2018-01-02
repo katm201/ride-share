@@ -20,7 +20,8 @@
     "test:dev": "./node_modules/.bin/mocha -t 7000 -R nyan",
     "test": "./node_modules/.bin/mocha -t 7000 -R list --exit",
     "coverage:db": "node ./node_modules/.bin/istanbul cover test/dbSpec.js",
-    "coverage:server": "node ./node_modules/.bin/istanbul cover test/dbSpec.js"
+    "coverage:server": "node ./node_modules/.bin/istanbul cover test/dbSpec.js",
+    "artillery:ping-local": "node ./node_modules/.bin/artillery run hello-local.yml"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
   "license": "ISC",
   "homepage": "https://github.com/katm201/ride-share#readme",
   "devDependencies": {
+    "artillery": "^1.6.0-12",
     "chai": "^4.1.2",
     "codecov": "^3.0.0",
     "eslint": "^4.13.0",
