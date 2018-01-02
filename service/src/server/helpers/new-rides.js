@@ -10,8 +10,8 @@ const getNearestDrivers = (job, gid, tx) => (
   newrelic.startBackgroundTransaction('new-rides/knex/nearest-drivers', 'db', () => (
     pgKnex.into('drivers')
       .select('id', st.asText('location'))
-      .orderByRaw(`ST_Distance(location, ${st.geomFromText(job.start_loc, 4326)}) LIMIT 5`)
       .where({ booked: false, available: true, census_block_id: gid })
+      .limit(5)
       .transacting(tx)
       .then((drivers) => {
         newrelic.endTransaction();
@@ -20,16 +20,14 @@ const getNearestDrivers = (job, gid, tx) => (
   ))
 );
 
-const updateDrivers = drivers => (
+const updateDrivers = (drivers, tx) => (
   Promise.map(drivers, driver => (
     newrelic.startBackgroundTransaction('new-rides/knex/update-driver', 'db', () => (
-      pgKnex.transaction(tx => (
-        tx.into('drivers')
-          .where('id', driver.id)
-          .update({ booked: true })
-          .transacting(tx)
-          .then(() => (newrelic.endTransaction()))
-      ))
+      tx.into('drivers')
+        .where('id', driver.id)
+        .update({ booked: true })
+        .transacting(tx)
+        .then(() => (newrelic.endTransaction()))
     ))
   ))
 );
@@ -87,7 +85,7 @@ const newRide = (job) => {
           drivers.forEach((driver) => {
             dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
           });
-          return updateDrivers(drivers);
+          return updateDrivers(drivers, tx);
         })
         .then(() => (sendDrivers(dispatchInfo)))
         .then(() => (addRequest(job, tx)))
