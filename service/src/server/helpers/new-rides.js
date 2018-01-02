@@ -10,8 +10,8 @@ const getNearestDrivers = (job, gid, tx) => (
   newrelic.startBackgroundTransaction('new-rides/knex/nearest-drivers', 'db', () => (
     pgKnex.into('drivers')
       .select('id', st.asText('location'))
-      .orderByRaw(`ST_Distance(location, ${st.geomFromText(job.start_loc, 4326)}) LIMIT 5`)
       .where({ booked: false, available: true, census_block_id: gid })
+      .limit(5)
       .transacting(tx)
       .then((drivers) => {
         newrelic.endTransaction();
