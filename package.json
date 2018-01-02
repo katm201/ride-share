@@ -18,7 +18,8 @@
     "start": "NODE_ENV=production node ./service/src/server/index.js",
     "start:dev": "nodemon ./service/src/server/index.js",
     "test:dev": "./node_modules/.bin/mocha -t 7000 -R nyan",
-    "test": "./node_modules/.bin/mocha -t 7000 -R list --exit"
+    "test": "./node_modules/.bin/mocha -t 7000 -R list --exit",
+    "artillery:ping-local": "node ./node_modules/.bin/artillery run hello-local.yml"
   },
   "repository": {
     "type": "git",
