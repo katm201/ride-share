@@ -21,7 +21,6 @@ const processRides = () => {
       newrelic.endTransaction();
       newRide(job.data)
         .then(() => {
-          console.log('done');
           done();
         });
     });
@@ -45,7 +44,7 @@ const processNewDrivers = (jobs, jobType) => (
     ))
       .then((response) => {
         const drivers = response.map((driver) => {
-          const info = formatNewDriver(driver);
+          const info = driverUtils.formatNewDriver(driver);
           return info;
         });
         return newrelic.startBackgroundTransaction(`${jobType}-driver/knex/batchInsert`, 'db', () => (

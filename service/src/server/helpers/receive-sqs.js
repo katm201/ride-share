@@ -53,7 +53,6 @@ const pollQueues = (jobType) => {
           .then(() => (
             deleteMessages(receiptHandles, jobType)
           ))
-          .then(() => { console.log('done', jobType); })
           .catch((err) => { console.log(err); });
       }
     });
@@ -66,4 +65,4 @@ const pollSQS = () => {
   pollQueues('update-driver');
 };
 
-module.exports = pollSQS;
+module.exports = { pollSQS, processDrivers };

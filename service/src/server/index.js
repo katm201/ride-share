@@ -8,7 +8,7 @@ const events = require('events');
 const AWS = require('aws-sdk');
 
 const router = require('./routes');
-const pollSQS = require('./helpers/receive-sqs');
+const { pollSQS } = require('./helpers/receive-sqs');
 const sendMetrics = require('./helpers/send-sqs');
 const processQueue = require('./helpers/process-queue');
 
