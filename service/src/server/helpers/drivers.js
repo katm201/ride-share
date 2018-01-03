@@ -14,6 +14,7 @@ const formatNewDriver = job => (
     available: true,
     booked: false,
     location: st.geomFromText(job.location, 4326),
+    census_block_id: job.census_block_id,
   }
 );
 
@@ -35,13 +36,27 @@ const updateStatus = (job) => {
   return base;
 };
 
-const getCensusBlock = location => (
+const getCensusBlock = (location, job) => (
   pgKnex('census_blocks')
     .select('gid')
     .whereRaw(`ST_Intersects(${st.geomFromText(location, 4326)}, geom) = ?`, [true])
     .returning('gid')
-    .then(ids => (ids[0].gid))
-    .catch(() => (null))
+    .then((ids) => {
+      if (job) {
+        const info = job;
+        info.census_block_id = ids[0].gid;
+        return info;
+      }
+      return ids[0].gid;
+    })
+    .catch(() => {
+      if (job) {
+        const info = job;
+        info.census_block_id = null;
+        return info;
+      }
+      return null;
+    })
 );
 
 const getTotalCount = () => (

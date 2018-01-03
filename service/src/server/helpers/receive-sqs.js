@@ -7,9 +7,7 @@ const processQueues = require('./process-queue');
 
 const processDrivers = {
   new: messages => (
-    Promise.map(messages, message => (
-      processQueues.processDrivers(message, 'complete')
-    ))
+    processQueues.processNewDrivers(messages, 'new')
   ),
   complete: messages => (
     Promise.map(messages, message => (
@@ -18,7 +16,7 @@ const processDrivers = {
   ),
   update: messages => (
     Promise.map(messages, message => (
-      processQueues.processDrivers(message, 'complete')
+      processQueues.processDrivers(message, 'update')
     ))
   ),
 };
@@ -55,7 +53,7 @@ const pollQueues = (jobType) => {
           .then(() => (
             deleteMessages(receiptHandles, jobType)
           ))
-          .then(() => { console.log('done'); })
+          .then(() => { console.log('done', jobType); })
           .catch((err) => { console.log(err); });
       }
     });
