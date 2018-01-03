@@ -20,8 +20,8 @@
     "start:dev": "nodemon ./service/src/server/index.js",
     "test:dev": "./node_modules/.bin/mocha -t 7000 -R nyan",
     "test": "./node_modules/.bin/mocha -t 7000 -R list --exit",
-    "coverage:db": "node ./node_modules/.bin/istanbul cover test/dbSpec.js",
-    "coverage:server": "node ./node_modules/.bin/istanbul cover test/dbSpec.js",
+    "coverage:db": "node ./node_modules/.bin/istanbul cover  test/dbSpec.js",
+    "coverage:server": "node ./node_modules/.bin/istanbul cover test/serverSpec.js",
     "artillery:ping-local": "node ./node_modules/.bin/artillery run hello-local.yml"
   },
   "repository": {
