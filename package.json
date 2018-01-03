@@ -12,6 +12,7 @@
     "db:setup-docker": "npm run db:add-blocks-docker && npm run db:build && npm run db:seed",
     "req:ping": "node ./load-test/ping.js",
     "req:new-ride": "node ./load-test/new-ride.js",
+    "req:new-ride-sustained": "node ./load-test/sustained/new-ride.js",
     "req:new-driver": "node ./load-test/new-driver.js",
     "req:complete-driver": "node ./load-test/complete-driver.js",
     "req:update-driver": "node ./load-test/update-driver.js",
