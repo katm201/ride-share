@@ -41,8 +41,8 @@ const formatDriver = {
   update: updateStatus,
 };
 
-const processDrivers = (job, jobType, callback) => (
-  newrelic.startBackgroundTransaction(`${jobType}-driver/knex/census-block`, 'db', () => {
+const processDrivers = (job, jobType) => (
+  newrelic.startBackgroundTransaction(`${jobType}-driver/knex/census-block`, 'db', () => (
     getCensusBlock(job.location)
       .then((gid) => {
         newrelic.endTransaction();
@@ -53,14 +53,11 @@ const processDrivers = (job, jobType, callback) => (
           model[jobType](info, id)
         ));
       })
-      .then(() => {
-        newrelic.endTransaction();
-        callback();
-      })
+      .then(() => (newrelic.endTransaction()))
       .catch((err) => {
         console.log('error', err);
-      });
-  })
+      })
+  ))
 );
 
 module.exports = {
