@@ -9,7 +9,6 @@ const { Driver } = require('../../database/config');
 const { pgKnex } = require('../../database/index');
 
 const {
-  formatNewDriver,
   changeBooked,
   updateStatus,
   getCensusBlock,
