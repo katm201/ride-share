@@ -47,12 +47,18 @@ const pollQueues = (jobType) => {
       newrelic.endTransaction();
       if (err) { console.log(err); }
       if (data.Messages) {
-        const messages = data.Messages.map(message => (JSON.parse(message.Body)));
-        const receiptHandles = data.Messages.map(message => (message.ReceiptHandle));
+        let messages = data.Messages.map(message => (JSON.parse(message.Body)));
+        let receiptHandles = data.Messages.map(message => (message.ReceiptHandle));
         processDrivers[shortJobType](messages)
           .then(() => (
             deleteMessages(receiptHandles, jobType)
           ))
+          // force garbage collection for setInterval
+          // to fix memory leak problems
+          .then(() => {
+            messages = null;
+            receiptHandles = null;
+          })
           .catch((err) => { console.log(err); });
       }
     });

@@ -96,27 +96,12 @@ const getUnavailableCount = () => (
   ))
 );
 
-const getUtilization = (callback) => {
-  const utilization = {};
-  getTotalCount()
-    .then((totalDrivers) => {
-      utilization.total = totalDrivers;
-      return getBookedCount();
-    })
-    .then((bookedDrivers) => {
-      utilization.booked = bookedDrivers;
-      return getUnavailableCount();
-    })
-    .then((unavailableDrivers) => {
-      utilization.unavailable = unavailableDrivers;
-      callback(utilization);
-    });
-};
-
 module.exports = {
   formatNewDriver,
   changeBooked,
   updateStatus,
-  getUtilization,
   getCensusBlock,
+  getTotalCount,
+  getBookedCount,
+  getUnavailableCount,
 };
