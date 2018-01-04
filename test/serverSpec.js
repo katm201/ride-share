@@ -10,19 +10,29 @@ const { pgKnex, st } = require('../service/src/database/index.js');
 const queueUtils = require('../service/src/server/helpers/process-queue');
 const driverUtils = require('../service/src/server/helpers/drivers');
 const sqsUtils = require('../service/src/server/helpers/receive-sqs');
+const middleware = require('../service/src/server/middleware/queue');
 
 const { uuid } = faker.random;
-const {
-  processDrivers,
-  formatDriver,
-  model
-} = queueUtils;
+const { formatDriver } = queueUtils;
 
 const port = process.env.PORT || 80;
 
 const baseUrl = `http://localhost:${port}`;
 
 describe('GET /', () => {
+  const hello = 'Hello Katherine!';
+
+  it(`responds with ${hello}`, (done) => {
+    axios.get(`${baseUrl}/`)
+      .then((response) => {
+        expect(response.data).to.equal(hello);
+        done();
+      })
+      .catch((err) => {
+        console.log('There was an error requesting / from the server', err);
+      })
+  })
+
   it('responds with a status code of 200', (done) => {
     axios.get(`${baseUrl}/`)
       .then((response) => {
@@ -50,6 +60,20 @@ describe('POST /new_ride', () => {
     axios.post(`${baseUrl}/new_ride`, createRideRequest())
       .then((response) => {
         expect(response.status).to.equal(201);
+        done();
+      })
+      .catch((err) => {
+        console.log('There was an error POSTing /new_ride to the server', err);
+      })
+  })
+
+  xit('calls the addReqToQueue middleware', (done) => {
+    const spy = sinon.spy(middleware, 'addReqToQueue');
+
+    axios.post(`${baseUrl}/new_ride`, createRideRequest())
+      .then((response) => {
+        expect(spy.callCount).to.equal(1);
+        spy.restore();
         done();
       })
       .catch((err) => {
@@ -210,7 +234,7 @@ describe('Process update-driver job queue', () => {
   });
 
   it('calls the formatDriver.update function', (done) => {
-    const formatSpy = sinon.spy(queueUtils.formatDriver, 'update');
+    const formatSpy = sinon.spy(formatDriver, 'update');
     
     sqsUtils.processDrivers[jobType]([job], jobType)
       .then(() => {

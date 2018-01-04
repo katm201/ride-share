@@ -5,3 +5,4 @@ npm-debug.log
 .aws/*
 config.json
 *.rdb
+coverage/*

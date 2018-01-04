@@ -11,6 +11,8 @@ const addReqToQueue = (request, response, next) => {
   });
 };
 
-module.exports = {
+const middleware = {
   addReqToQueue,
 };
+
+module.exports = middleware;

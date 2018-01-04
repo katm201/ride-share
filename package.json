@@ -20,6 +20,8 @@
     "start:dev": "nodemon ./service/src/server/index.js",
     "test:dev": "./node_modules/.bin/mocha -t 7000 -R nyan",
     "test": "./node_modules/.bin/mocha -t 7000 -R list --exit",
+    "coverage:db": "node ./node_modules/.bin/istanbul cover  test/dbSpec.js",
+    "coverage:server": "node ./node_modules/.bin/istanbul cover test/serverSpec.js",
     "artillery:ping-local": "node ./node_modules/.bin/artillery run hello-local.yml"
   },
   "repository": {
@@ -32,9 +34,11 @@
   "devDependencies": {
     "artillery": "^1.6.0-12",
     "chai": "^4.1.2",
+    "codecov": "^3.0.0",
     "eslint": "^4.13.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
+    "istanbul": "^0.4.5",
     "mocha": "^4.0.1",
     "nodemon": "^1.12.5",
     "sinon": "^4.1.3"
