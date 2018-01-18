@@ -7,8 +7,12 @@ const { uuid } = faker.random;
 
 const { pgKnex, st } = db;
 
-// -122.512539,37.709636,-122.387999,37.808029
+// helper functions for seeding scripts
 
+
+// SF Bounds (approx):
+// -122.512539,37.709636,-122.387999,37.808029
+// creates a random location within SF
 const createLocation = () => {
   const minLog = -122.512539;
   const minLat = 37.709636;
@@ -17,12 +21,14 @@ const createLocation = () => {
   return `POINT(${log} ${lat})`;
 };
 
+// creates a random time between 01/01/17-3/31/17
 const createTime = (start = 1483257600000) => {
   const lastMs = 1491030000000;
   const addTime = Math.floor(Math.random() * (lastMs - start));
   return new Date(start + addTime);
 };
 
+// creates a fake driver
 const createDrivers = (count, callback, drivers = []) => {
   if (count < 1) {
     callback(drivers);
@@ -44,6 +50,8 @@ const createDrivers = (count, callback, drivers = []) => {
       location: st.geomFromText(location, 4326),
     };
 
+    // gets the census block attached to the random location
+    // point above
     pgKnex('census_blocks')
       .select('gid')
       .whereRaw(`ST_Intersects(${info.location}, geom) = ?`, [true])
@@ -60,6 +68,7 @@ const createDrivers = (count, callback, drivers = []) => {
   }
 };
 
+// generates fake requests
 const createRequests = (end) => {
   const requests = [];
 
@@ -78,6 +87,7 @@ const createRequests = (end) => {
   return requests;
 };
 
+// generates fake join table entries
 const createJoins = (start, end, driversCount) => {
   const joins = [];
 
