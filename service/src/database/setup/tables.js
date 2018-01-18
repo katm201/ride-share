@@ -2,8 +2,6 @@ const db = require('../index');
 
 const { pgKnex } = db;
 
-// TODO: remove indexing on drivers table to see if that's faster with write speeds
-
 pgKnex.schema.createTableIfNotExists('drivers', (table) => {
   table.increments().primary();
   table.string('last_name');

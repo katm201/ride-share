@@ -5,6 +5,8 @@ const db = require('../../database/index');
 
 const { pgKnex, st } = db;
 
+// helper function to format the info needed to
+// insert a new driver into the database
 const formatNewDriver = job => (
   {
     first_name: job.first_name,
@@ -18,6 +20,9 @@ const formatNewDriver = job => (
   }
 );
 
+// helper function to format the info needed to
+// update a driver's location and booked status
+// after finishing a ride
 const changeBooked = job => (
   {
     booked: false,
@@ -25,6 +30,9 @@ const changeBooked = job => (
   }
 );
 
+// helper function to format the info needed to
+// update a driver's location, booked status, and
+// available for work status
 const updateStatus = (job) => {
   const base = {
     available: job.available,
@@ -36,6 +44,8 @@ const updateStatus = (job) => {
   return base;
 };
 
+// helper function to get the census block
+// based on a location point
 const getCensusBlock = (location, job) => (
   pgKnex('census_blocks')
     .select('gid')
@@ -59,6 +69,7 @@ const getCensusBlock = (location, job) => (
     })
 );
 
+// helper function to get the total number of drivers
 const getTotalCount = () => (
   newrelic.startBackgroundTransaction('driver-util/knex/total', 'db', () => (
     pgKnex('drivers').count('id')
@@ -70,6 +81,8 @@ const getTotalCount = () => (
   ))
 );
 
+// helper function to get the number of drivers who are
+// currently booked on a ride
 const getBookedCount = () => (
   newrelic.startBackgroundTransaction('driver-util/knex/booked', 'db', () => (
     pgKnex('drivers')
@@ -83,6 +96,8 @@ const getBookedCount = () => (
   ))
 );
 
+// helper function to get the number of drivers who are
+// currently unavailable to work
 const getUnavailableCount = () => (
   newrelic.startBackgroundTransaction('driver-util/knex/unavailable', 'db', () => (
     pgKnex('drivers')

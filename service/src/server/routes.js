@@ -11,6 +11,8 @@ router.get('/', (request, response) => {
   response.status(200).end('Hello Katherine!');
 });
 
+// requests for new rides get added to the queue,
+// then closed out immediately
 router.post('/new_ride', addReqToQueue, (request, response) => {
   newrelic.setTransactionName('post /new_ride');
   response.status(201).end();

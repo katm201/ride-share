@@ -14,10 +14,12 @@ const {
   getCensusBlock,
 } = driverUtils;
 
+// helper function to process new rides
 const processRides = () => {
   newrelic.startBackgroundTransaction('new-rides/kue/process', 'kue', () => {
     service.queue.process('ride', 1, (job, done) => {
       newrelic.endTransaction();
+      // helper function that runs all newRide queries
       newRide(job.data)
         .then(() => {
           done();
@@ -26,19 +28,27 @@ const processRides = () => {
   });
 };
 
+// creates a Bookshelf model with the driver info
+// that needs to be updated, then saves to the database
 const model = (info, id) => (
   Driver.forge({ id }).save(info, { patch: true })
 );
 
-// TODO: completeDriver should also come with a timestamp (needs to be added)
+// helper functions to format the driver's info
+// based on what kind of update
 const formatDriver = {
   complete: changeBooked,
   update: updateStatus,
 };
 
+// helper function to process new drivers
 const processNewDrivers = (jobs, jobType) => (
   newrelic.startBackgroundTransaction(`${jobType}-driver/knex/census-blocks-10`, 'db', () => (
+    // new driver messages come individually, but can be
+    // batchInserted with Knex, if we aggregate their info
     Promise.map(jobs, job => (
+      // helper function to find the correct census block
+      // for the driver's current location
       getCensusBlock(job.location, job)
     ))
       .then((response) => {
@@ -57,15 +67,20 @@ const processNewDrivers = (jobs, jobType) => (
   ))
 );
 
+// helper function to process driver updates
 const processDrivers = (job, jobType) => (
   newrelic.startBackgroundTransaction(`${jobType}-driver/knex/census-block`, 'db', () => (
+    // helper function to find the correct census block
+    // for the driver's current location
     getCensusBlock(job.location)
       .then((gid) => {
         newrelic.endTransaction();
+        // format's the driver's info based on jobType
         const info = formatDriver[jobType](job);
         const id = job.driver_id;
         info.census_block_id = gid;
         return newrelic.startBackgroundTransaction(`${jobType}-driver/bookshelf/update`, 'db', () => (
+          // creates the model and saves it
           model(info, id)
         ));
       })
