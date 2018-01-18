@@ -66,34 +66,48 @@ const sendDrivers = (options) => {
   });
 };
 
+// primary helper function that runs all queries
+// associated with new ride requests
 const newRide = (job) => {
   const dispatchInfo = {
     ride_id: job.ride_id,
     start_loc: job.start_loc,
     drivers: [],
   };
+  // creates a new transaction to wrap the queries in
   return pgKnex.transaction(tx => (
     newrelic.startBackgroundTransaction('new-rides/knex/census-block', 'db', () => (
+      // helper function to get the census block for the
+      // ride's location
       getCensusBlock(job.start_loc)
         .then((gid) => {
           newrelic.endTransaction();
           const newJob = job;
           newJob.gid = gid;
+          // helper function to get 5 drivers from the
+          // same census block as the ride request
           return getNearestDrivers(job, gid, tx);
         })
         .then((drivers) => {
           drivers.forEach((driver) => {
             dispatchInfo.drivers.push({ driver_id: driver.id, driver_loc: driver.location });
           });
+          // updates all 5 drivers' records in the database
+          // so that they're marked as currently on a job
+          // and can't be pulled for another at the same time
           return updateDrivers(drivers, tx);
         })
+        // sends the drivers' info to the dispatch url
         .then(() => (sendDrivers(dispatchInfo)))
+        // adds the request to the request table
         .then(() => (addRequest(job, tx)))
         .then((id) => {
           const join = {
             request_id: id,
             drivers: dispatchInfo.drivers,
           };
+          // adds the entries to a join table between
+          // drivers and requests
           return addJoins(join, tx);
         })
         .catch((err) => {
